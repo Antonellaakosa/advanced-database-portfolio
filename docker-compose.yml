@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: upln_postgres
+    environment:
+      POSTGRES_USER: library_admin
+      POSTGRES_PASSWORD: library_dev_pw
+      POSTGRES_DB: upln
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
