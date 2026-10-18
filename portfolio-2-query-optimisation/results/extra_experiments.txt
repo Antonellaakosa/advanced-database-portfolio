@@ -1,0 +1,206 @@
+SET
+Border style is 2.
+Output format is aligned.
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+
+#####  EXPERIMENT 1: BRIN versus B-tree on a time column  #####
+loan.loaned_at grows in the same order rows are stored, so a tiny BRIN index can work.
+DROP INDEX
+CREATE INDEX
++------------+-------+-------------+
+| index_type | size  | ms_jan_2025 |
++------------+-------+-------------+
+| B-tree     | 21 MB |       1.663 |
+| BRIN       | 24 kB |             |
++------------+-------+-------------+
+(2 rows)
+
+BEGIN
+DROP INDEX
++-----------+-------------+
+|   case    | ms_jan_2025 |
++-----------+-------------+
+| BRIN only |       3.569 |
++-----------+-------------+
+(1 row)
+
+COMMIT
+Reading: BRIN is thousands of times smaller than a B-tree; its time is close, a fair trade for append-only history.
+
+#####  EXPERIMENT 2: the three join algorithms  #####
+Same query, forcing the optimiser to use one join method at a time.
+SELECT 1
+SET
+SET
+SET
++-----------------------+--------+-----------+
+|        setting        |   ms   | join_used |
++-----------------------+--------+-----------+
+| optimiser free choice | 34.900 | Hash Join |
++-----------------------+--------+-----------+
+(1 row)
+
+SET
+SET
+SET
++-------------------+--------+------------+
+|      setting      |   ms   | join_used  |
++-------------------+--------+------------+
+| merge join forced | 68.212 | Merge Join |
++-------------------+--------+------------+
+(1 row)
+
+SET
+SET
+SET
++------------------+--------+-----------+
+|     setting      |   ms   | join_used |
++------------------+--------+-----------+
+| hash join forced | 45.029 | Hash Join |
++------------------+--------+-----------+
+(1 row)
+
+SET
+SET
+SET
++--------------------+--------+-------------+
+|      setting       |   ms   |  join_used  |
++--------------------+--------+-------------+
+| nested loop forced | 57.751 | Nested Loop |
++--------------------+--------+-------------+
+(1 row)
+
+RESET
+RESET
+RESET
+Reading: the free choice is normally the fastest; forcing a worse algorithm shows why cost-based choice matters.
+
+#####  EXPERIMENT 3: estimated versus actual rows, and what ANALYZE changes  #####
+DROP TABLE
+CREATE TABLE
+ALTER TABLE
+INSERT 0 1000010
+CREATE FUNCTION
+--- Without statistics (table never analysed): member_id = 1500
++----------------+-------------+
+| estimated_rows | actual_rows |
++----------------+-------------+
+|           5361 |          38 |
++----------------+-------------+
+(1 row)
+
+--- Without statistics: a range on loaned_at (2025)
++----------------+-------------+
+| estimated_rows | actual_rows |
++----------------+-------------+
+|           5361 |      134196 |
++----------------+-------------+
+(1 row)
+
+ANALYZE
+--- After ANALYZE: member_id = 1500
++----------------+-------------+
+| estimated_rows | actual_rows |
++----------------+-------------+
+|             23 |          38 |
++----------------+-------------+
+(1 row)
+
+--- After ANALYZE: a range on loaned_at (2025)
++----------------+-------------+
+| estimated_rows | actual_rows |
++----------------+-------------+
+|         136277 |      134196 |
++----------------+-------------+
+(1 row)
+
+Reading: statistics are the optimiser's eyes. Closer estimates mean better plan choices.
+
+#####  EXPERIMENT 4: parallel query on the analytic report (Q6)  #####
+SET
++---------------------+---------+
+|       setting       |   ms    |
++---------------------+---------+
+| no parallel workers | 645.887 |
++---------------------+---------+
+(1 row)
+
+SET
++--------------------+---------+
+|      setting       |   ms    |
++--------------------+---------+
+| 2 parallel workers | 641.462 |
++--------------------+---------+
+(1 row)
+
+RESET
+Reading: parallel workers are not automatically faster. Starting them and merging their results has a cost,
+so the gain depends on the machine (CPU cores) and the size of the scan. Always measure, never assume.
+
+#####  EXPERIMENT 5: physical order (correlation) and CLUSTER  #####
+Correlation near 1 or -1 = rows stored in that order; near 0 = scattered.
++-------------+-------------+
+| column_name | correlation |
++-------------+-------------+
+| copy_id     |      -0.001 |
+| loaned_at   |       1.000 |
+| member_id   |      -0.014 |
++-------------+-------------+
+(3 rows)
+
+DROP TABLE
+SELECT 1000010
+CREATE INDEX
+ANALYZE
++----------------+---------------+-------+
+|     state      | pages_touched |  ms   |
++----------------+---------------+-------+
+| before CLUSTER |          3889 | 3.135 |
++----------------+---------------+-------+
+(1 row)
+
+CLUSTER
+ANALYZE
++---------------+---------------+-------+
+|     state     | pages_touched |  ms   |
++---------------+---------------+-------+
+| after CLUSTER |            59 | 0.987 |
++---------------+---------------+-------+
+(1 row)
+
+Reading: when matching rows sit together on disk, far fewer pages are read. CLUSTER is a one-off; new rows are not kept in order.
+
+#####  EXPERIMENT 6: query rewriting (IN subquery versus JOIN)  #####
+Two ways to ask: titles written by "Author 777".
++---------------+-------+
+|     form      |  ms   |
++---------------+-------+
+| IN (subquery) | 0.036 |
++---------------+-------+
+(1 row)
+
++------+-------+
+| form |  ms   |
++------+-------+
+| JOIN | 0.030 |
++------+-------+
+(1 row)
+
+Reading: the optimiser flattens the subquery, so both forms get an equivalent plan. Write the clearest form.
+
+#####  EXPERIMENT 7: the price of an index (write cost)  #####
+DROP TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+DO
+Reading: every index must be updated on each insert. Add only the indexes that queries really use.
+DROP INDEX
+DROP TABLE
+
+All experiments finished; scratch tables removed.
