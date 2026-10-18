@@ -21,6 +21,7 @@ erDiagram
     LOAN ||--o{ FINE : "may incur"
     FINE ||--o{ PAYMENT : "is settled by"
     STAFF ||--o{ PAYMENT : receives
+    MEMBER ||--o| MEMBER_IDENTITY : "has encrypted ID"
 
     BRANCH {
         int branch_id PK
@@ -117,4 +118,20 @@ erDiagram
         int received_by_staff_id FK
         decimal amount
         string method
+    }
+    MEMBER_IDENTITY {
+        int member_id PK, FK
+        bytea nin_encrypted
+        char nin_last4
+    }
+    AUDIT_LOG {
+        bigint audit_id PK
+        timestamptz changed_at
+        string table_name
+        string operation
+        string row_pk
+        string db_user
+        string effective_role
+        jsonb old_data
+        jsonb new_data
     }

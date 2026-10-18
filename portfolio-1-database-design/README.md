@@ -8,12 +8,18 @@
 
 | File | What it is |
 |---|---|
-| [`01_schema.sql`](01_schema.sql) | Creates all 15 tables, the keys, the constraints and one view |
+| [`01_schema.sql`](01_schema.sql) | Creates the 15 core tables, the keys, the constraints and one view |
 | [`02_sample_data.sql`](02_sample_data.sql) | Small, consistent, synthetic sample data |
 | [`03_constraint_tests.sql`](03_constraint_tests.sql) | 18 tests that try to break the rules and show the database refusing them |
 | [`04_security_privacy.sql`](04_security_privacy.sql) | Roles, least-privilege permissions, privacy-safe views and row-level security |
 | [`05_security_tests.sql`](05_security_tests.sql) | 14 permission tests plus demonstrations of masking and row-level security |
-| [`er_diagram.png`](er_diagram.png) / [`.svg`](er_diagram.svg) | ER diagram generated from the live database |
+| [`06_audit_log.sql`](06_audit_log.sql) / [`06b_audit_demo.sql`](06b_audit_demo.sql) | Tamper-resistant audit log (adds table 16) and a short demonstration |
+| [`07_audit_tests.sql`](07_audit_tests.sql) | 18 tests of the audit log |
+| [`08_payment_guard.sql`](08_payment_guard.sql) / [`08b_payment_guard_tests.sql`](08b_payment_guard_tests.sql) | Trigger that stops over-payment and payment of a waived fine, with 6 tests |
+| [`09_authentication.sql`](09_authentication.sql) / [`09b_login_tests.sh`](09b_login_tests.sh) | Real login accounts with hashed passwords, and a script that logs in over the network |
+| [`10_encryption.sql`](10_encryption.sql) / [`10b_run_encryption.sh`](10b_run_encryption.sh) | Encrypted National Identification Number (adds table 17), password hashing, 10 tests |
+| [`11_sql_injection_demo.sql`](11_sql_injection_demo.sql) | An unsafe search being attacked, the safe version, and defence in depth |
+| [`er_diagram.png`](er_diagram.png) / [`.svg`](er_diagram.svg) | ER diagram generated from the live database (17 tables) |
 | [`er_diagram.mmd`](er_diagram.mmd) | The same model as hand-written Mermaid source (rendered below) |
 | [`build_er_diagram.py`](build_er_diagram.py) | Script that produces the diagram from the database |
 | `evidence/` | My screenshots of each step |
@@ -75,7 +81,10 @@ erDiagram
     COPY ||--o{ COPY_TRANSFER : "moves in"
     LOAN ||--o{ FINE : "may incur"
     FINE ||--o{ PAYMENT : "is settled by"
+    MEMBER ||--o| MEMBER_IDENTITY : "has encrypted ID"
 ```
+
+`audit_log` has no foreign keys on purpose: it records changes to many tables by name and must keep its entries even if the original row is later deleted.
 
 ### How to read the main relationships
 
@@ -107,8 +116,10 @@ PK = primary key, FK = foreign key, UQ = unique. Full definitions are in [`01_sc
 | `copy_transfer` | `transfer_id` | `copy_id`, `from_branch_id`, `to_branch_id`, `requested_by_staff_id` | from ≠ to; shipped and received times in order |
 | `fine` | `fine_id` | `loan_id` → loan | UQ (`loan_id`, `reason`); `amount` > 0 |
 | `payment` | `payment_id` | `fine_id` → fine; `received_by_staff_id` → staff | `amount` > 0; `method` restricted |
+| `audit_log` *(added by `06_audit_log.sql`)* | `audit_id` | none, deliberately | `operation` in (INSERT, UPDATE, DELETE); append-only (see section 7.5) |
+| `member_identity` *(added by `10_encryption.sql`)* | `member_id` | `member_id` → member (one-to-one) | `nin_encrypted` holds ciphertext only; `nin_last4` must be 4 digits |
 
-There is also one **view**, `v_fine_balance`, which computes how much of each fine has been paid and how much is outstanding.
+The first 15 tables come from `01_schema.sql`. The two security scripts add `audit_log` and `member_identity`, so the finished database has **17 tables**. There is also one **view**, `v_fine_balance`, which computes how much of each fine has been paid and how much is outstanding, and the reporting and audit views described in section 7.
 
 **Why surrogate keys?** Every table uses a system-generated integer key (`GENERATED ALWAYS AS IDENTITY`). Natural values such as names or emails can change or repeat. A surrogate key never changes, so foreign keys stay valid. The natural identifiers (email, barcode, ISBN) are still protected with `UNIQUE`.
 
@@ -209,9 +220,19 @@ docker compose exec -T postgres psql -U library_admin -d upln -v ON_ERROR_STOP=1
 docker compose exec -T postgres psql -U library_admin -d upln < portfolio-1-database-design/03_constraint_tests.sql
 docker compose exec -T postgres psql -U library_admin -d upln -v ON_ERROR_STOP=1 < portfolio-1-database-design/04_security_privacy.sql
 docker compose exec -T postgres psql -U library_admin -d upln < portfolio-1-database-design/05_security_tests.sql
+docker compose exec -T postgres psql -U library_admin -d upln -v ON_ERROR_STOP=1 < portfolio-1-database-design/06_audit_log.sql
+docker compose exec -T postgres psql -U library_admin -d upln < portfolio-1-database-design/06b_audit_demo.sql
+docker compose exec -T postgres psql -U library_admin -d upln < portfolio-1-database-design/07_audit_tests.sql
+docker compose exec -T postgres psql -U library_admin -d upln -v ON_ERROR_STOP=1 < portfolio-1-database-design/08_payment_guard.sql
+docker compose exec -T postgres psql -U library_admin -d upln < portfolio-1-database-design/08b_payment_guard_tests.sql
+bash portfolio-1-database-design/09b_login_tests.sh
+bash portfolio-1-database-design/10b_run_encryption.sh
+docker compose exec -T postgres psql -U library_admin -d upln < portfolio-1-database-design/11_sql_injection_demo.sql
 ```
 
-The scripts are safe to re-run: the schema script drops and recreates everything, and the sample data always loads the same rows.
+Run them in this order. `06b` makes four real changes that stay in the audit log, and `09b` and `10b` generate random passwords and keys that exist only in the terminal session (nothing secret is written to the repository).
+
+The scripts are safe to re-run: the schema script drops and recreates the 15 core tables, and the sample data always loads the same rows. After re-running `01_schema.sql` run `04` and `06` to `10` again, because the roles' permissions, triggers and extra tables belong to the objects that were dropped.
 
 To regenerate the diagram (needs the PostgreSQL client and Graphviz: `sudo apt-get update && sudo apt-get install -y postgresql-client graphviz`):
 
@@ -227,6 +248,10 @@ PGHOST=localhost PGUSER=library_admin PGPASSWORD=library_dev_pw PGDATABASE=upln 
 - Constraint tests: **18 rows, every one marked `PASS (rejected)`**, followed by one valid loan that is accepted and then rolled back.
 - Security script: no errors.
 - Security tests: **14 rows, every one marked `PASS`**, then the masked member list, and the row-level security demonstrations (member 1 sees 2 loans, member 7 sees 2 loans, a logged-out member sees 0, a librarian sees all 10).
+- Audit demo: 4 audit entries, with the tampering attempt refused. Audit tests: **18 rows, every one `PASS`**.
+- Payment guard tests: **6 rows, every one `PASS`**.
+- Login script: a wrong password is refused (`FATAL: password authentication failed`); the librarian login cannot delete loans or read the audit log; the auditor sees the real login name in the trail.
+- Encryption: **10 rows, every one `PASS`**. SQL injection demo: the unsafe search returns 1, 8 and 8 rows for the three inputs; the safe search returns 1, 0 and 0; the last attack is refused for the member-app role.
 
 One detail worth knowing: after the tests, the valid test loan shows an ID higher than 11. This is normal. PostgreSQL's ID counters never roll back, so the failed inserts "used up" some numbers. IDs are unique, not gap-free.
 
@@ -234,7 +259,18 @@ One detail worth knowing: after the tests, the valid test loan shows an ID highe
 
 ## 7. Security and privacy
 
-A library holds personal data about its members (names, emails, phone numbers, home addresses) and its borrowing history, which reveals what people read. Protecting that data is part of good database design, and the course notes stress the same ideas: role-based access control, the principle of least privilege, and compliance with data protection law such as the Nigeria Data Protection Regulation (NDPR) named in the notes. [`04_security_privacy.sql`](04_security_privacy.sql) applies four layers of protection, and [`05_security_tests.sql`](05_security_tests.sql) proves they work.
+A library holds personal data about its members (names, emails, phone numbers, home addresses, and in this design an identity number) and its borrowing history, which reveals what people read. Protecting that data is part of good database design. The course notes (Study Session Three) list the mechanisms of database security: authentication and authorisation, access control, encryption, auditing and monitoring, and backup and recovery. Data protection law also applies: in Nigeria this is the **Nigeria Data Protection Act 2023 (NDPA)**, whose principles include collecting only the data needed and keeping it secure. The table below shows which mechanism is covered where.
+
+| Course mechanism | What I implemented | Section | Script |
+|---|---|---|---|
+| Authorisation, role-based access control, least privilege | Five job roles, column-level permissions, separation of duties | 7.1 | `04`, `05` |
+| Privacy by design / data minimisation | Masking views, redacted audit entries, row-level security | 7.2, 7.3, 7.5 | `04`, `06` |
+| Auditing | Append-only audit log fed by triggers | 7.5 | `06`, `07` |
+| Integrity of money | Payment guard trigger | 7.6 | `08` |
+| Authentication | Login accounts, SCRAM-SHA-256 password hashes, expiry | 7.7 | `09` |
+| Encryption | Encrypted identity number, salted password hashing; transit and disk encryption explained | 7.8 | `10` |
+| Injection attacks | Unsafe versus safe query, with least privilege as a safety net | 7.9 | `11` |
+| Monitoring, backup and recovery | **Not in this portfolio.** Backup, recovery and cloud monitoring are covered in Portfolio 5 | 7.10 | |
 
 ### 7.1 Roles and least privilege
 
@@ -244,9 +280,10 @@ Instead of giving every user the same powers, I created one **role** per kind of
 |---|---|---|---|
 | `upln_librarian` | Front-desk staff | Read catalogue, members, loans; issue loans; take payments; update a member's phone, address and status; update a copy's status and location | Delete anything; change a member's name or email; waive fines |
 | `upln_branch_manager` | Branch managers | Everything a librarian can, plus manage the collection and transfers, and **waive fines** | Delete records |
-| `upln_hq_admin` | Headquarters administrators | Full data access, including deletes | Change the database structure (they do not own the tables) or act as a superuser |
+| `upln_hq_admin` | Headquarters administrators | Full data access, including deletes; may read the audit log | Change the database structure (they do not own the tables), act as a superuser, or alter the audit log |
 | `upln_analyst` | Reporting and planning staff | Read two privacy-safe views only | Read any raw table |
 | `upln_member_self` | The member self-service app | Read the public catalogue and *their own* records | Edit anything; read staff, fines or payments |
+| `upln_auditor` | Auditor (added in `06`) | Read the audit trail | Change any data |
 
 Two details worth noting:
 - **Column-level permissions.** A librarian may update a member's `phone`, `address` and `status`, but not `email` or the name. Permissions can be granted per column, not just per table.
@@ -260,19 +297,69 @@ Analysts need statistics, not personal details. The view `v_member_directory_mas
 
 For the member self-service app, table permissions alone are not enough, because members must see *some* rows of `loan` and `member` (their own) but not others. PostgreSQL's **row-level security** solves this. The app tells the database who is logged in (`SET app.current_member_id = '1'`), and a policy lets that role see only rows where `member_id` matches. Without a login, the member role sees **zero** rows. Staff roles have an explicit "see all rows" policy, because once row-level security is switched on, a role with no matching policy sees nothing.
 
-### 7.4 What I did not do, and why
+### 7.4 Results of the first security layer
+
+The 14 tests in `05_security_tests.sql` all pass. For example, a librarian's attempt to delete a loan and a branch manager's attempt to waive a fine are tested in both directions: refused for the role that should not have the power, allowed for the role that should. I also checked the test harness itself by giving it two deliberately wrong expectations, and it correctly reported `FAIL` for both.
+
+### 7.5 Audit log (who did what, and when)
+
+Permissions say who *may* act. An audit log records who *did*. `06_audit_log.sql` adds a table `audit_log` and a trigger on eight tables (`member`, `staff`, `loan`, `fine`, `payment`, `copy`, `reservation` and later `member_identity`). Every insert, update or delete writes one row: the time, the table, the row's key, the login name, the role in force, the staff member named by the application (`SET app.staff_id`), which columns changed, and the old and new values as JSON.
+
+Design decisions:
+- **Privacy inside the log.** Phone numbers, addresses and the encrypted identity value are replaced by `[REDACTED]` in the log. The log shows *that* a phone number changed, not what it is, so the audit trail does not become a second copy of personal data.
+- **The log cannot be avoided.** The trigger function is `SECURITY DEFINER`, so ordinary users, who have no access to the log, still cause entries to be written. A change that fails and rolls back leaves no entry, because the entry is part of the same transaction.
+- **The log cannot be altered.** No role is granted write access, and further triggers refuse `UPDATE`, `DELETE` and `TRUNCATE` even for the table owner. Only the auditor and HQ administrator roles may read it.
+- **A bug I found and fixed.** My first version recorded the function owner's name as the acting role, because inside a `SECURITY DEFINER` function the current user is the owner. My own test caught it. The fix reads the role from the `role` setting, and the tests now check that the role is recorded correctly.
+
+`07_audit_tests.sql` runs 18 tests (changes are logged with the right facts, redaction works, the administrator cannot update, delete or truncate the log, nobody can forge an entry, only the right roles can read it). It runs inside a transaction that is rolled back, so it leaves no trace. I also confirmed the tests can fail: in a scratch copy I deliberately removed the protective trigger on the log, the audit trigger on `member` and a permission, and six of the tests reported `FAIL`.
+
+### 7.6 Payment guard
+
+`08_payment_guard.sql` adds a trigger on `payment`. It locks the fine's row, then refuses a payment that exceeds the outstanding balance, a payment on a waived fine, and a payment on a fine that does not exist. The lock matters for concurrency: two cashiers paying the same fine at the same moment are checked one after the other, not both against the same old balance. `08b_payment_guard_tests.sql` passes 6 tests, including two payments that together exceed the balance. Portfolio 3 will test the two-cashier case with real concurrent sessions.
+
+### 7.7 Authentication
+
+So far the roles were job titles that nobody could log in as. `09_authentication.sql` creates two real accounts, `staff_amina` (a librarian) and `auditor_ngozi` (the auditor), and gives each the rights of one job role. They cannot create users or databases and are not superusers.
+
+- **No password in the repository.** `09b_login_tests.sh` generates random passwords for the run, passes them to the script and never writes them to a file. The database stores only a salted **SCRAM-SHA-256** hash (the `SCRAM-SHA-256$…` value shown in the evidence), and the passwords expire on 30 June 2027.
+- **Proof by logging in.** The script connects over the network. A wrong password is refused with `FATAL: password authentication failed`. The librarian login is refused when it tries to delete a loan or read the audit log. The auditor sees the real login name `staff_amina` in the audit trail.
+- **How the server decides.** The evidence shows the connection rules (`pg_hba.conf`): network connections must prove identity with `scram-sha-256`. The `trust` lines are the container's own local connections inside the practice container, which would not exist in production.
+
+### 7.8 Encryption and hashing
+
+`10_encryption.sql` uses the `pgcrypto` extension.
+- **Encrypted identifier.** A table `member_identity` stores a National Identification Number (synthetic values only) as ciphertext produced with AES-256 (`pgp_sym_encrypt`), plus the last four digits for desk staff. Without the key, a stolen database file or backup shows only scrambled bytes. The key is supplied at run time from outside the database and is never committed. Ten tests pass: the plain number is not found in the stored bytes; the right key recovers it; a wrong key fails; the same number encrypts to different bytes each time; a librarian can read only the last four digits; an analyst cannot read the table; the audit log hides the encrypted value; and password hashing (`bcrypt` with a random salt) accepts the right password, rejects a wrong one and gives different hashes for the same password.
+- **Encryption in transit and at rest (honest scope).** The script checks the connection and reports that TLS is **off** in this practice container, which is reached over a private Docker network. I did not enable it here. A production or cloud deployment must require TLS and encrypted storage, and Portfolio 5 covers this in the cloud context.
+- **Key management.** A key held by the application, as in the demo, is only as safe as the place it is kept. A real system would keep it in a secrets manager and rotate it.
+
+### 7.9 SQL injection
+
+`11_sql_injection_demo.sql` shows why the way queries are built matters. An unsafe search that glues the user's text into the command is attacked with the input `x' OR '1'='1`, which returns every member (8 rows instead of 1), and with a `UNION` input that returns staff email addresses from a different table. The safe version passes the text as a bound parameter, so the same inputs find nothing. The third part shows **defence in depth**: the same unsafe code is attacked while acting as the member-app role. Row-level security limits the "match all" attack to that member's own row, and the data-theft attack is refused outright because the role has no right to read the staff table. The vulnerable function exists only for the session and is not left in the database.
+
+(While building this demo my first version of the third part reported a syntax error that looked like a permission refusal. I noticed the message was wrong, fixed the test, and re-ran it so the evidence shows the real permission error.)
+
+### 7.10 What I did not do, and why
 
 | Topic | Position |
 |---|---|
-| **Passwords** | The roles are group roles with no login and no password, so no secret appears in this repository. In real use, each person gets an individual login with a strong password kept outside the repo (for example in an environment variable or a secrets manager). |
+| **Group-role passwords** | The five job roles are group roles with no login. Only the two demonstration accounts can log in, with random run-time passwords. |
 | **The `docker-compose.yml` password** | `library_dev_pw` is committed for convenience. That is only acceptable because the database is a throwaway practice instance that holds **synthetic data only** and is not reachable from the internet. A real system would never commit it. |
-| **Encryption** | Not configured in this practice database. In production, I would use encryption in transit (TLS) and at rest, which the course notes also highlight. Portfolio 5 returns to this in the cloud context. |
-| **Audit logging** | A production system would record who read or changed personal data. This is listed as future work. |
-| **Real data** | All names, emails and phone numbers are synthetic, and the emails use the reserved `example.com` domain, so no real person's data is stored in this repository. |
+| **TLS and disk encryption** | Not enabled in the practice container (see 7.8). Covered conceptually here and in the cloud design in Portfolio 5. |
+| **Monitoring and alerting** | The audit log supports investigation after the fact, but I did not build live alerting. A production system would feed the log and the server logs to a monitoring tool. |
+| **Backup and recovery** | Planned for Portfolio 5, where it is combined with replication, recovery point and recovery time. |
+| **Audit log storage** | The log lives in the same database. A database superuser could still disable its protective triggers. A production system would also ship the log to separate write-once storage. |
+| **Real data** | All names, emails, phone numbers and identity numbers are synthetic, and the emails use the reserved `example.com` domain, so no real person's data is stored in this repository. |
 
-### 7.5 Results
+### 7.11 Test summary for the security work
 
-The 14 tests in `05_security_tests.sql` all pass. For example, a librarian's attempt to delete a loan and a branch manager's attempt to waive a fine are tested in both directions: refused for the role that should not have the power, allowed for the role that should. I also checked the test harness itself by giving it two deliberately wrong expectations, and it correctly reported `FAIL` for both.
+| Script | Tests | Result |
+|---|---|---|
+| `03_constraint_tests.sql` | 18 integrity tests | all pass |
+| `05_security_tests.sql` | 14 permission tests | all pass |
+| `07_audit_tests.sql` | 18 audit tests | all pass |
+| `08b_payment_guard_tests.sql` | 6 payment tests | all pass |
+| `10_encryption.sql` | 10 encryption and hashing tests | all pass |
+| `09b_login_tests.sh`, `11_sql_injection_demo.sql` | demonstrations (observed outcomes, shown in the evidence) | as described above |
 
 ---
 
@@ -282,19 +369,25 @@ Screenshots are in [`evidence/`](evidence/):
 
 | File | Shows |
 |---|---|
-| `01_tables_created.png` | `\dt` listing the 15 tables |
+| `01_tables_created.png` | `\dt` listing the 15 core tables (taken before the security scripts added two more) |
 | `02_sample_data_loaded.png` | Row counts after loading the data |
 | `03_constraint_tests.png` | All 18 tests passing |
 | `04_fine_balance_view.png` | Output of `SELECT * FROM v_fine_balance;` |
-| `05_security_tests.png` | All 14 security tests passing, and the masked member list |
+| `05_security_tests.png` | All 14 security tests passing |
 | `06_row_level_security.png` | Row-level security demonstrations (members 1 and 7, nobody logged in, librarian) |
+| `07_audit_log_demo.png` | A simulated working day and the auditor's view of the trail; the tampering attempt is refused |
+| `08_audit_tests.png` | All 18 audit tests passing |
+| `09_payment_guard_tests.png` | All 6 payment guard tests passing |
+| `10_authentication_a.png`, `10_authentication_b.png` | Hashed passwords, roles, connection rules, then wrong password refused, correct login accepted, least privilege and the audit trail showing the real login name |
+| `11_encryption.png` | Ciphertext in the table, all 10 encryption tests passing, and the TLS check |
+| `12_sql_injection_a.png`, `12_sql_injection_b.png` | Unsafe search attacked, safe search resisting, and the defence-in-depth refusal |
 
 ---
 
 ## 9. Design decisions, limitations and future work
 
 - **Single-currency, single-country.** All money is in naira, and there is no tax or currency conversion.
-- **No audit history.** The schema stores the current state plus loan, transfer and payment history, but it does not keep a log of every edit or every read of personal data. A production system would add one.
+- **Audit scope.** The audit log records changes (insert, update, delete). It does not record who merely *read* personal data. Read-auditing would need database logging or an extension and is listed as future work.
 - **Reservation queue order** is implied by `reserved_at`. A real system would also need rules for which returned copy satisfies which reservation. Portfolio 3 touches on this.
 - **Data volume.** The sample data is deliberately tiny so it can be read and checked by hand. Portfolio 2 generates much larger data to test performance.
 
@@ -304,3 +397,6 @@ Screenshots are in [`evidence/`](evidence/):
 - MIVA Open University (2025). *Advanced Database Systems*, Study Session Three (database security) and Study Session Six (data privacy): role-based access control, least privilege, encryption, data protection regulation.
 - PostgreSQL Global Development Group. *PostgreSQL 16 Documentation: Privileges* and *Row Security Policies*. https://www.postgresql.org/docs/16/ddl-priv.html and https://www.postgresql.org/docs/16/ddl-rowsecurity.html
 - PostgreSQL Global Development Group. *PostgreSQL 16 Documentation: Partial Indexes*. https://www.postgresql.org/docs/16/indexes-partial.html
+- Federal Republic of Nigeria (2023). *Nigeria Data Protection Act, 2023.* Nigeria Data Protection Commission.
+- PostgreSQL Global Development Group. *PostgreSQL 16 Documentation: Password Authentication* (SCRAM), *The pg_hba.conf File*, *CREATE TRIGGER*, *CREATE FUNCTION* (SECURITY DEFINER) and *pgcrypto*. https://www.postgresql.org/docs/16/
+- OWASP Foundation. *SQL Injection Prevention Cheat Sheet.* https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html
