@@ -11,6 +11,8 @@
 | [`01_schema.sql`](01_schema.sql) | Creates all 15 tables, the keys, the constraints and one view |
 | [`02_sample_data.sql`](02_sample_data.sql) | Small, consistent, synthetic sample data |
 | [`03_constraint_tests.sql`](03_constraint_tests.sql) | 18 tests that try to break the rules and show the database refusing them |
+| [`04_security_privacy.sql`](04_security_privacy.sql) | Roles, least-privilege permissions, privacy-safe views and row-level security |
+| [`05_security_tests.sql`](05_security_tests.sql) | 14 permission tests plus demonstrations of masking and row-level security |
 | [`er_diagram.png`](er_diagram.png) / [`.svg`](er_diagram.svg) | ER diagram generated from the live database |
 | [`er_diagram.mmd`](er_diagram.mmd) | The same model as hand-written Mermaid source (rendered below) |
 | [`build_er_diagram.py`](build_er_diagram.py) | Script that produces the diagram from the database |
@@ -205,6 +207,8 @@ From the repository root, with the database container running (`docker compose u
 docker compose exec -T postgres psql -U library_admin -d upln -v ON_ERROR_STOP=1 < portfolio-1-database-design/01_schema.sql
 docker compose exec -T postgres psql -U library_admin -d upln -v ON_ERROR_STOP=1 < portfolio-1-database-design/02_sample_data.sql
 docker compose exec -T postgres psql -U library_admin -d upln < portfolio-1-database-design/03_constraint_tests.sql
+docker compose exec -T postgres psql -U library_admin -d upln -v ON_ERROR_STOP=1 < portfolio-1-database-design/04_security_privacy.sql
+docker compose exec -T postgres psql -U library_admin -d upln < portfolio-1-database-design/05_security_tests.sql
 ```
 
 The scripts are safe to re-run: the schema script drops and recreates everything, and the sample data always loads the same rows.
@@ -221,12 +225,58 @@ PGHOST=localhost PGUSER=library_admin PGPASSWORD=library_dev_pw PGDATABASE=upln 
 - Schema script: no errors; `\dt` lists 15 tables.
 - Sample data: 5 branches, 3 membership types, 8 members, 8 staff, 10 titles, 19 copies, 10 loans, 3 fines.
 - Constraint tests: **18 rows, every one marked `PASS (rejected)`**, followed by one valid loan that is accepted and then rolled back.
+- Security script: no errors.
+- Security tests: **14 rows, every one marked `PASS`**, then the masked member list, and the row-level security demonstrations (member 1 sees 2 loans, member 7 sees 2 loans, a logged-out member sees 0, a librarian sees all 10).
 
 One detail worth knowing: after the tests, the valid test loan shows an ID higher than 11. This is normal. PostgreSQL's ID counters never roll back, so the failed inserts "used up" some numbers. IDs are unique, not gap-free.
 
 ---
 
-## 7. Evidence
+## 7. Security and privacy
+
+A library holds personal data about its members (names, emails, phone numbers, home addresses) and its borrowing history, which reveals what people read. Protecting that data is part of good database design, and the course notes stress the same ideas: role-based access control, the principle of least privilege, and compliance with data protection law such as the Nigeria Data Protection Regulation (NDPR) named in the notes. [`04_security_privacy.sql`](04_security_privacy.sql) applies four layers of protection, and [`05_security_tests.sql`](05_security_tests.sql) proves they work.
+
+### 7.1 Roles and least privilege
+
+Instead of giving every user the same powers, I created one **role** per kind of user. Each role is given only what its job needs, and everything starts from "no access".
+
+| Role | Who it represents | What it may do | What it may not do |
+|---|---|---|---|
+| `upln_librarian` | Front-desk staff | Read catalogue, members, loans; issue loans; take payments; update a member's phone, address and status; update a copy's status and location | Delete anything; change a member's name or email; waive fines |
+| `upln_branch_manager` | Branch managers | Everything a librarian can, plus manage the collection and transfers, and **waive fines** | Delete records |
+| `upln_hq_admin` | Headquarters administrators | Full data access, including deletes | Change the database structure (they do not own the tables) or act as a superuser |
+| `upln_analyst` | Reporting and planning staff | Read two privacy-safe views only | Read any raw table |
+| `upln_member_self` | The member self-service app | Read the public catalogue and *their own* records | Edit anything; read staff, fines or payments |
+
+Two details worth noting:
+- **Column-level permissions.** A librarian may update a member's `phone`, `address` and `status`, but not `email` or the name. Permissions can be granted per column, not just per table.
+- **Separation of duties.** Only a branch manager can waive a fine. A librarian who takes payments cannot also cancel what a member owes.
+
+### 7.2 Privacy-safe views (data minimisation)
+
+Analysts need statistics, not personal details. The view `v_member_directory_masked` shows each member as, for example, *Adaeze O., ad\*\*\*@example.com, Standard, Lagos*, and leaves out the phone number and address completely. The view `v_branch_activity` shows only totals per branch. The analyst role has **no access to the underlying tables**, so the views are the only way in. This follows the principle of collecting and exposing no more personal data than the task needs.
+
+### 7.3 Row-level security
+
+For the member self-service app, table permissions alone are not enough, because members must see *some* rows of `loan` and `member` (their own) but not others. PostgreSQL's **row-level security** solves this. The app tells the database who is logged in (`SET app.current_member_id = '1'`), and a policy lets that role see only rows where `member_id` matches. Without a login, the member role sees **zero** rows. Staff roles have an explicit "see all rows" policy, because once row-level security is switched on, a role with no matching policy sees nothing.
+
+### 7.4 What I did not do, and why
+
+| Topic | Position |
+|---|---|
+| **Passwords** | The roles are group roles with no login and no password, so no secret appears in this repository. In real use, each person gets an individual login with a strong password kept outside the repo (for example in an environment variable or a secrets manager). |
+| **The `docker-compose.yml` password** | `library_dev_pw` is committed for convenience. That is only acceptable because the database is a throwaway practice instance that holds **synthetic data only** and is not reachable from the internet. A real system would never commit it. |
+| **Encryption** | Not configured in this practice database. In production, I would use encryption in transit (TLS) and at rest, which the course notes also highlight. Portfolio 5 returns to this in the cloud context. |
+| **Audit logging** | A production system would record who read or changed personal data. This is listed as future work. |
+| **Real data** | All names, emails and phone numbers are synthetic, and the emails use the reserved `example.com` domain, so no real person's data is stored in this repository. |
+
+### 7.5 Results
+
+The 14 tests in `05_security_tests.sql` all pass. For example, a librarian's attempt to delete a loan and a branch manager's attempt to waive a fine are tested in both directions: refused for the role that should not have the power, allowed for the role that should. I also checked the test harness itself by giving it two deliberately wrong expectations, and it correctly reported `FAIL` for both.
+
+---
+
+## 8. Evidence
 
 Screenshots are in [`evidence/`](evidence/):
 
@@ -236,17 +286,21 @@ Screenshots are in [`evidence/`](evidence/):
 | `02_sample_data_loaded.png` | Row counts after loading the data |
 | `03_constraint_tests.png` | All 18 tests passing |
 | `04_fine_balance_view.png` | Output of `SELECT * FROM v_fine_balance;` |
+| `05_security_tests.png` | All 14 security tests passing, and the masked member list |
+| `06_row_level_security.png` | Row-level security demonstrations (members 1 and 7, nobody logged in, librarian) |
 
 ---
 
-## 8. Design decisions, limitations and future work
+## 9. Design decisions, limitations and future work
 
 - **Single-currency, single-country.** All money is in naira, and there is no tax or currency conversion.
-- **No audit history.** The schema stores the current state plus loan, transfer and payment history, but it does not keep a log of every edit. A production system would add one.
+- **No audit history.** The schema stores the current state plus loan, transfer and payment history, but it does not keep a log of every edit or every read of personal data. A production system would add one.
 - **Reservation queue order** is implied by `reserved_at`. A real system would also need rules for which returned copy satisfies which reservation. Portfolio 3 touches on this.
 - **Data volume.** The sample data is deliberately tiny so it can be read and checked by hand. Portfolio 2 generates much larger data to test performance.
 
 ## Sources
 
 - MIVA Open University (2025). *Advanced Database Systems*, Study Session One: Review of Traditional Relational Databases and Advanced Concepts (database design, keys, normalisation).
+- MIVA Open University (2025). *Advanced Database Systems*, Study Session Three (database security) and Study Session Six (data privacy): role-based access control, least privilege, encryption, data protection regulation.
+- PostgreSQL Global Development Group. *PostgreSQL 16 Documentation: Privileges* and *Row Security Policies*. https://www.postgresql.org/docs/16/ddl-priv.html and https://www.postgresql.org/docs/16/ddl-rowsecurity.html
 - PostgreSQL Global Development Group. *PostgreSQL 16 Documentation: Partial Indexes*. https://www.postgresql.org/docs/16/indexes-partial.html
