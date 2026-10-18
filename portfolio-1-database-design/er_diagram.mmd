@@ -1,0 +1,120 @@
+erDiagram
+    BRANCH ||--o{ MEMBER : "is home branch of"
+    BRANCH ||--o{ STAFF : employs
+    BRANCH ||--o{ COPY : holds
+    MEMBERSHIP_TYPE ||--o{ MEMBER : "sets rules for"
+    MEMBER ||--o{ LOAN : borrows
+    COPY ||--o{ LOAN : "is lent in"
+    STAFF ||--o{ LOAN : issues
+    BRANCH ||--o{ LOAN : "checkout and return site"
+    TITLE ||--o{ COPY : "exists as"
+    PUBLISHER |o--o{ TITLE : publishes
+    CATEGORY ||--o{ TITLE : classifies
+    TITLE ||--o{ TITLE_AUTHOR : "is written by"
+    AUTHOR ||--o{ TITLE_AUTHOR : writes
+    MEMBER ||--o{ RESERVATION : places
+    TITLE ||--o{ RESERVATION : "is reserved in"
+    BRANCH ||--o{ RESERVATION : "pickup point"
+    COPY ||--o{ COPY_TRANSFER : "moves in"
+    BRANCH ||--o{ COPY_TRANSFER : "from and to"
+    STAFF ||--o{ COPY_TRANSFER : requests
+    LOAN ||--o{ FINE : "may incur"
+    FINE ||--o{ PAYMENT : "is settled by"
+    STAFF ||--o{ PAYMENT : receives
+
+    BRANCH {
+        int branch_id PK
+        string branch_name UK
+        string city
+        boolean is_headquarters
+    }
+    MEMBERSHIP_TYPE {
+        int type_id PK
+        string type_name UK
+        int max_loans
+        int loan_days
+        decimal fine_per_day
+    }
+    MEMBER {
+        int member_id PK
+        string email UK
+        int type_id FK
+        int home_branch_id FK
+        string status
+    }
+    STAFF {
+        int staff_id PK
+        int branch_id FK
+        string email UK
+        string role
+    }
+    PUBLISHER {
+        int publisher_id PK
+        string publisher_name UK
+    }
+    AUTHOR {
+        int author_id PK
+        string full_name
+    }
+    CATEGORY {
+        int category_id PK
+        string category_name UK
+    }
+    TITLE {
+        int title_id PK
+        string isbn UK
+        string title_name
+        int publisher_id FK
+        int category_id FK
+        string media_type
+    }
+    TITLE_AUTHOR {
+        int title_id PK, FK
+        int author_id PK, FK
+        int author_order
+    }
+    COPY {
+        int copy_id PK
+        int title_id FK
+        int branch_id FK
+        string barcode UK
+        string status
+    }
+    LOAN {
+        int loan_id PK
+        int copy_id FK
+        int member_id FK
+        int issued_by_staff_id FK
+        int checkout_branch_id FK
+        int return_branch_id FK
+        timestamptz loaned_at
+        timestamptz due_at
+        timestamptz returned_at
+    }
+    RESERVATION {
+        int reservation_id PK
+        int title_id FK
+        int member_id FK
+        int pickup_branch_id FK
+        string status
+    }
+    COPY_TRANSFER {
+        int transfer_id PK
+        int copy_id FK
+        int from_branch_id FK
+        int to_branch_id FK
+        string status
+    }
+    FINE {
+        int fine_id PK
+        int loan_id FK
+        decimal amount
+        string reason
+    }
+    PAYMENT {
+        int payment_id PK
+        int fine_id FK
+        int received_by_staff_id FK
+        decimal amount
+        string method
+    }
