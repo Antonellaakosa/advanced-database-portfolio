@@ -11,7 +11,7 @@ source "$(dirname "$0")/lib.sh"
 echo "== Portfolio 4: full run =="
 bash "$HERE/00_start_mongo.sh"                    || exit 1
 bash "$HERE/01_export_from_postgres.sh"           || exit 1
-for f in 02_schema_validation 03_load_migrated 04_generate_data 05_queries 06_aggregation 07_indexes_explain 08_modelling_patterns; do
+for f in 02_schema_validation 03_load_migrated 04_generate_data 05_queries 06_aggregation 07_indexes_explain 08_modelling_patterns 11_other_nosql_models 13_media_formats; do
   mongorun "$f.js"
 done
 bash "$HERE/09_reconcile.sh"

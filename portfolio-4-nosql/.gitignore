@@ -1,0 +1,2 @@
+# secrets must never be committed
+.env.mongo

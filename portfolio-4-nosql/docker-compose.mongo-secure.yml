@@ -1,0 +1,21 @@
+# =====================================================================
+# UPLN | MIT 8103 | Portfolio 4 | the HARDENED MongoDB
+# Same MongoDB 7, but with authentication switched on and three separate
+# accounts. Runs next to the open lab instance on port 27018.
+# Passwords come from .env.mongo (random, created by 12_secure_mongo.sh,
+# and kept out of GitHub by .gitignore).
+# =====================================================================
+services:
+  mongo_secure:
+    image: mongo:7
+    container_name: upln_mongo_secure
+    command: ["mongod", "--auth", "--bind_ip_all"]
+    env_file: .env.mongo
+    ports:
+      - "127.0.0.1:27018:27017"
+    volumes:
+      - upln_mongo_secure_data:/data/db
+      - ./:/p4:ro
+      - ./docker/secure_init.js:/docker-entrypoint-initdb.d/secure_init.js:ro
+volumes:
+  upln_mongo_secure_data:
