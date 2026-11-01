@@ -1,66 +1,74 @@
 # Portfolio 1: Database Design and Modelling
 
-**Course:** MIT 8103 Advanced Database Systems
-**Case study:** Unity Public Library Network (UPLN), a fictional organisation created for this assignment
-**DBMS:** PostgreSQL 16 (running in Docker)
+**Course:** MIT 8103 Advanced Database Systems  
+**Case study:** Unity Public Library Network (UPLN), a fictional organisation developed for this assessment  
+**Database platform:** PostgreSQL 16, deployed with Docker in a GitHub Codespace
 
-## Contents
+## Repository Structure and Contents
 
-| File | What it is |
+This directory contains the database schema, sample dataset, implementation scripts, repeatable test procedures and supporting evidence for Portfolio 1. The scripts document both the controls implemented and the procedures used to verify their behaviour.
+
+| File or directory | Purpose |
 |---|---|
-| [`01_schema.sql`](01_schema.sql) | Creates the 15 core tables, the keys, the constraints and one view |
-| [`02_sample_data.sql`](02_sample_data.sql) | Small, consistent, synthetic sample data |
-| [`03_constraint_tests.sql`](03_constraint_tests.sql) | 18 tests that try to break the rules and show the database refusing them |
-| [`04_security_privacy.sql`](04_security_privacy.sql) | Roles, least-privilege permissions, privacy-safe views and row-level security |
-| [`05_security_tests.sql`](05_security_tests.sql) | 14 permission tests plus demonstrations of masking and row-level security |
-| [`06_audit_log.sql`](06_audit_log.sql) / [`06b_audit_demo.sql`](06b_audit_demo.sql) | Tamper-resistant audit log (adds table 16) and a short demonstration |
-| [`07_audit_tests.sql`](07_audit_tests.sql) | 18 tests of the audit log |
-| [`08_payment_guard.sql`](08_payment_guard.sql) / [`08b_payment_guard_tests.sql`](08b_payment_guard_tests.sql) | Trigger that stops over-payment and payment of a waived fine, with 6 tests |
-| [`09_authentication.sql`](09_authentication.sql) / [`09b_login_tests.sh`](09b_login_tests.sh) | Real login accounts with hashed passwords, and a script that logs in over the network |
-| [`10_encryption.sql`](10_encryption.sql) / [`10b_run_encryption.sh`](10b_run_encryption.sh) | Encrypted National Identification Number (adds table 17), password hashing, 10 tests |
-| [`11_sql_injection_demo.sql`](11_sql_injection_demo.sql) | An unsafe search being attacked, the safe version, and defence in depth |
-| [`er_diagram.png`](er_diagram.png) / [`.svg`](er_diagram.svg) | ER diagram generated from the live database (17 tables) |
-| [`er_diagram.mmd`](er_diagram.mmd) | The same model as hand-written Mermaid source (rendered below) |
-| [`build_er_diagram.py`](build_er_diagram.py) | Script that produces the diagram from the database |
-| `evidence/` | My screenshots of each step |
+| [`01_schema.sql`](01_schema.sql) | Creates the 15 core tables, primary and foreign keys, constraints and initial fine-balance view |
+| [`02_sample_data.sql`](02_sample_data.sql) | Populates the schema with a small, consistent synthetic dataset |
+| [`03_constraint_tests.sql`](03_constraint_tests.sql) | Executes 18 negative integrity tests and a valid-loan test to assess constraint enforcement |
+| [`04_security_privacy.sql`](04_security_privacy.sql) | Implements database roles, least-privilege permissions, privacy-preserving views and row-level security |
+| [`05_security_tests.sql`](05_security_tests.sql) | Executes 14 permission tests and demonstrates data masking and row-level filtering |
+| [`06_audit_log.sql`](06_audit_log.sql) and [`06b_audit_demo.sql`](06b_audit_demo.sql) | Implements the audit log (table 16), then generates sample activity to demonstrate its operation |
+| [`07_audit_tests.sql`](07_audit_tests.sql) | Executes 18 tests of audit recording, access restrictions and tamper resistance |
+| [`08_payment_guard.sql`](08_payment_guard.sql) and [`08b_payment_guard_tests.sql`](08b_payment_guard_tests.sql) | Implements fine-payment validation and executes six integrity tests |
+| [`09_authentication.sql`](09_authentication.sql) and [`09b_login_tests.sh`](09b_login_tests.sh) | Creates demonstration login accounts and tests authentication and associated privileges |
+| [`10_encryption.sql`](10_encryption.sql) and [`10b_run_encryption.sh`](10b_run_encryption.sh) | Implements encrypted member identification data (table 17), demonstrates password hashing and executes ten tests |
+| [`11_sql_injection_demo.sql`](11_sql_injection_demo.sql) | Demonstrates SQL injection, parameterised-query protection and the effect of restricted permissions |
+| [`er_diagram.png`](er_diagram.png) and [`er_diagram.svg`](er_diagram.svg) | Entity–relationship diagram generated from the implemented database |
+| [`er_diagram.mmd`](er_diagram.mmd) | Mermaid source describing the principal entities and relationships |
+| [`build_er_diagram.py`](build_er_diagram.py) | Generates the database diagram from the live schema |
+| [`evidence/`](evidence/) | Screenshots recording the execution and outcomes of the portfolio activities |
 
 ---
 
-## 1. Case study
+## 1. Case Study, Objectives and Scope
 
-**Unity Public Library Network (UPLN)** is a fictional national public library system. It has a headquarters in **Abuja** and four city branches in **Lagos, Port Harcourt, Kano and Enugu**. The network shares one catalogue. Members can borrow and return items at any branch, and copies move between cities on request.
+The **Unity Public Library Network (UPLN)** is a fictional public library system with five branches: the Abuja headquarters, Lagos, Port Harcourt, Kano and Enugu. Its branches share a catalogue and support member registration, the borrowing and return of library materials, reservations, transfers between branches, overdue fines and fine payments. The proposed database supports librarians, branch managers, headquarters administrators and member-facing services.
 
-| Question | Answer |
+| Aspect | Description |
 |---|---|
-| **Nature of the system** | Lending and circulation management for a multi-city public library |
-| **Users of the database** | Members, librarians, branch managers, headquarters administrators |
-| **Major data stored** | Branches, membership types, members, staff, publishers, authors, categories, titles, physical copies, loans, reservations, copy transfers, fines, payments |
-| **Key operations** | Register a member; search the catalogue; borrow and return a copy; reserve a title; transfer a copy between branches; calculate and pay fines; report on branch activity |
+| **System purpose** | Management of library collections, membership and circulation activities across five Nigerian cities |
+| **Database users** | Members, librarians, branch managers and headquarters administrators |
+| **Principal data entities** | Branches, membership types, members, staff, publishers, authors, categories, titles, copies, loans, reservations, transfers, fines and payments |
+| **Core operations** | Member registration; catalogue search; borrowing and returning copies; reservations; copy transfers; fine assessment and payment; operational reporting |
 
-All people, emails and ISBNs in the sample data are synthetic. Fines and fees are in naira (₦).
+All records used in the assessment are synthetic, including names, email addresses and ISBNs. Monetary amounts are represented in Nigerian naira (₦).
 
-### Business rules the design must protect
+**Objective and scope.** I designed and implemented UPLN's relational database in PostgreSQL 16, focusing on entity–relationship modelling, schema design, normalisation, referential and business-rule integrity, controlled access to sensitive data and verification of database behaviour. The implementation comprises 15 core tables and two additional tables for audit logging and encrypted identity data, giving 17 tables in total. I executed the scripts within a Docker-based GitHub Codespace and recorded the results for assessment.
 
-| # | Rule | Enforced by |
+### 1.1 Business Rules and Integrity Controls
+
+The schema translates UPLN's operating requirements into constraints so that invalid data can be rejected by PostgreSQL, including when an application does not perform the corresponding validation.
+
+| ID | Business rule | Database enforcement |
 |---|---|---|
-| R1 | The network has exactly one headquarters | Partial unique index `uq_one_headquarters` |
-| R2 | A physical copy can have at most one active loan | Partial unique index `uq_one_active_loan_per_copy` |
-| R3 | A member can have only one open reservation per title | Partial unique index `uq_one_open_reservation` |
-| R4 | A loan cannot fall due before it starts; a returned loan must record where it was returned | `CHECK` constraints on `loan` |
-| R5 | A copy cannot be transferred to the branch it is already at | `CHECK` on `copy_transfer` |
-| R6 | Emails, barcodes and ISBNs are unique, and ISBNs are well-formed | `UNIQUE` and `CHECK` |
-| R7 | Money amounts are positive; status fields only hold allowed values | `CHECK` |
-| R8 | Nothing can point to a record that does not exist | Foreign keys |
+| R1 | No more than one branch may be designated as headquarters; Abuja is designated in the sample dataset | Partial unique index `uq_one_headquarters`. The index prevents a second headquarters but does not require a headquarters record to exist |
+| R2 | Each physical copy may have only one active loan at a time | Partial unique index `uq_one_active_loan_per_copy` |
+| R3 | A member may have only one open reservation for the same title | Partial unique index `uq_one_open_reservation` |
+| R4 | A loan's due date must not precede its start date; a returned loan must identify the return branch | `CHECK` constraints on `loan` |
+| R5 | A copy transfer must reference different source and destination branches | `CHECK` constraint on `copy_transfer` |
+| R6 | Email addresses and barcodes must be unique; provided ISBNs must be unique and satisfy the defined format | `UNIQUE` and `CHECK` constraints |
+| R7 | Monetary values and status fields must remain within their defined ranges and permitted values | `CHECK` constraints |
+| R8 | Records must not reference non-existent parent records | Foreign-key constraints |
+
+The distinction in R1 is intentional: a uniqueness rule prevents duplicate headquarters designations, while an additional control would be needed to guarantee that one headquarters always exists.
 
 ---
 
-## 2. Entity-relationship diagram
+## 2. Entity–Relationship Modelling
 
-The diagram below is generated from the database itself by `build_er_diagram.py`, so it always matches the schema. Yellow rows are primary keys and green rows are foreign keys. The "tee" end of a line is the "one" side and the "crow's foot" end is the "many" side.
+The diagram shown below was generated from the PostgreSQL database using `build_er_diagram.py`, so it can be compared with the implemented table definitions. Within the generated diagram, yellow denotes primary-key columns and green denotes foreign-key columns; the relationship symbols indicate cardinality.
 
-![UPLN entity-relationship diagram](er_diagram.png)
+![UPLN entity–relationship diagram](er_diagram.png)
 
-The same model in Mermaid (GitHub draws this automatically). It shows the main entities and relationships only; the full column lists are in the diagram above and in [`er_diagram.mmd`](er_diagram.mmd):
+The following Mermaid diagram summarises the principal relationships. The generated diagram and [`er_diagram.mmd`](er_diagram.mmd) contain the more detailed representation.
 
 ```mermaid
 erDiagram
@@ -84,122 +92,134 @@ erDiagram
     MEMBER ||--o| MEMBER_IDENTITY : "has encrypted ID"
 ```
 
-`audit_log` has no foreign keys on purpose: it records changes to many tables by name and must keep its entries even if the original row is later deleted.
+The `audit_log` table does not contain foreign keys to the operational tables. It records changes across different entity types and is designed to preserve the audit record independently of the continued existence of the affected operational row.
 
-### How to read the main relationships
+### 2.1 Entity Relationships and Cardinality
 
-- **Title vs copy.** A *title* is the work (for example *Things Fall Apart*). A *copy* is one physical item with its own barcode, held at one branch. One title has many copies, and each copy belongs to exactly one title.
-- **Title and author are many-to-many.** A textbook can have three authors and an author can write many books, so the link table `title_author` sits between them. Its primary key is the pair (`title_id`, `author_id`).
-- **A loan joins a member to a copy.** The loan also records the staff member who issued it and the branch where it was checked out and returned. The checkout and return branches can differ, because members may return items at any branch.
-- **Fines hang off loans and payments hang off fines.** One fine can be paid in several instalments.
+- **Titles and copies:** `title` represents a catalogue entry, whereas `copy` represents a specific physical item identified by its barcode and associated with a branch. A title may have several copies, but each copy references one title. Separating these entities permits the same work to be held at multiple branches without duplicating its catalogue description.
+- **Titles and authors:** Authors and titles have a many-to-many relationship. The `title_author` junction table resolves this relationship, and its composite primary key (`title_id`, `author_id`) prevents the same author–title association from being recorded twice.
+- **Members and loans:** A loan associates a member with a particular copy and records the issuing staff member, checkout branch and, where applicable, return branch. These locations are recorded separately because a member may return an item at a different branch.
+- **Loans, fines and payments:** A loan may give rise to a fine, while a fine may be settled by several payments. This design supports partial payments without requiring the outstanding fine balance to be stored as a separate, manually updated value.
+
+These relationships informed the foreign keys and the separation of catalogue, circulation and financial records in the implemented schema.
 
 ---
 
-## 3. Relational schema
+## 3. Relational Schema and Design Decisions
 
-PK = primary key, FK = foreign key, UQ = unique. Full definitions are in [`01_schema.sql`](01_schema.sql).
+The schema definitions are provided in [`01_schema.sql`](01_schema.sql). In the table below, PK denotes primary key, FK foreign key and UQ a unique constraint.
 
-| Table | Primary key | Foreign keys | Other keys and notable constraints |
+| Table | Primary key | Foreign keys | Notable constraints and design features |
 |---|---|---|---|
-| `branch` | `branch_id` | none | UQ `branch_name`; one-headquarters rule (R1) |
-| `membership_type` | `type_id` | none | UQ `type_name`; `max_loans`, `loan_days` > 0; fee and rate ≥ 0 |
-| `member` | `member_id` | `type_id` → membership_type; `home_branch_id` → branch | UQ `email` with format `CHECK`; `status` in (active, suspended, expired) |
-| `staff` | `staff_id` | `branch_id` → branch | UQ `email`; `role` in (librarian, branch_manager, administrator) |
-| `publisher` | `publisher_id` | none | UQ `publisher_name` |
-| `author` | `author_id` | none | none |
-| `category` | `category_id` | none | UQ `category_name` |
-| `title` | `title_id` | `publisher_id` → publisher; `category_id` → category | UQ `isbn` (13 digits, may be NULL); `media_type` in (book, dvd, audiobook, magazine) |
-| `title_author` | (`title_id`, `author_id`) | `title_id` → title; `author_id` → author | composite primary key; `author_order` ≥ 1 |
-| `copy` | `copy_id` | `title_id` → title; `branch_id` → branch | UQ `barcode`; `status` and `copy_condition` restricted to allowed values |
-| `loan` | `loan_id` | `copy_id`, `member_id`, `issued_by_staff_id`, `checkout_branch_id`, `return_branch_id` | R2 index; due after loan; return time and return branch both set or both NULL; renewals 0 to 2 |
-| `reservation` | `reservation_id` | `title_id`, `member_id`, `pickup_branch_id` | R3 index; expiry after reservation time |
-| `copy_transfer` | `transfer_id` | `copy_id`, `from_branch_id`, `to_branch_id`, `requested_by_staff_id` | from ≠ to; shipped and received times in order |
-| `fine` | `fine_id` | `loan_id` → loan | UQ (`loan_id`, `reason`); `amount` > 0 |
-| `payment` | `payment_id` | `fine_id` → fine; `received_by_staff_id` → staff | `amount` > 0; `method` restricted |
-| `audit_log` *(added by `06_audit_log.sql`)* | `audit_id` | none, deliberately | `operation` in (INSERT, UPDATE, DELETE); append-only (see section 7.5) |
-| `member_identity` *(added by `10_encryption.sql`)* | `member_id` | `member_id` → member (one-to-one) | `nin_encrypted` holds ciphertext only; `nin_last4` must be 4 digits |
+| `branch` | `branch_id` | None | UQ `branch_name`; at-most-one-headquarters rule (R1) |
+| `membership_type` | `type_id` | None | UQ `type_name`; positive loan limits and durations; non-negative fees and rates |
+| `member` | `member_id` | `type_id` → `membership_type`; `home_branch_id` → `branch` | UQ `email` with format check; allowed membership status values |
+| `staff` | `staff_id` | `branch_id` → `branch` | UQ `email`; allowed staff roles |
+| `publisher` | `publisher_id` | None | UQ `publisher_name` |
+| `author` | `author_id` | None | Author details held separately from titles |
+| `category` | `category_id` | None | UQ `category_name` |
+| `title` | `title_id` | `publisher_id` → `publisher`; `category_id` → `category` | UQ `isbn` when provided (13 digits); permitted media types: `book`, `dvd`, `audiobook`, `magazine` |
+| `title_author` | (`title_id`, `author_id`) | `title_id` → `title`; `author_id` → `author` | Composite PK; `author_order` ≥ 1 |
+| `copy` | `copy_id` | `title_id` → `title`; `branch_id` → `branch` | UQ `barcode`; constrained copy status and condition |
+| `loan` | `loan_id` | `copy_id`, `member_id`, `issued_by_staff_id`, `checkout_branch_id`, `return_branch_id` | Active-loan uniqueness; due-date and return-date checks; renewals limited to 0–2 |
+| `reservation` | `reservation_id` | `title_id`, `member_id`, `pickup_branch_id` | One open reservation per member and title; expiry after reservation time |
+| `copy_transfer` | `transfer_id` | `copy_id`, `from_branch_id`, `to_branch_id`, `requested_by_staff_id` | Source and destination differ; transfer timestamps ordered |
+| `fine` | `fine_id` | `loan_id` → `loan` | UQ (`loan_id`, `reason`); positive amount |
+| `payment` | `payment_id` | `fine_id` → `fine`; `received_by_staff_id` → `staff` | Positive amount; restricted payment methods |
+| `audit_log` (added by `06_audit_log.sql`) | `audit_id` | None, by design | Recorded operation limited to `INSERT`, `UPDATE` or `DELETE`; append-only controls described in Section 7.5 |
+| `member_identity` (added by `10_encryption.sql`) | `member_id` | `member_id` → `member` | One-to-one extension; encrypted NIN and four-digit display suffix |
 
-The first 15 tables come from `01_schema.sql`. The two security scripts add `audit_log` and `member_identity`, so the finished database has **17 tables**. There is also one **view**, `v_fine_balance`, which computes how much of each fine has been paid and how much is outstanding, and the reporting and audit views described in section 7.
+The core schema creates 15 tables. The audit and encryption activities introduce `audit_log` and `member_identity`, bringing the implemented model to **17 tables**. The view `v_fine_balance` calculates amounts paid and balances outstanding from the fine and payment records; additional reporting and audit views are introduced by the security scripts.
 
-**Why surrogate keys?** Every table uses a system-generated integer key (`GENERATED ALWAYS AS IDENTITY`). Natural values such as names or emails can change or repeat. A surrogate key never changes, so foreign keys stay valid. The natural identifiers (email, barcode, ISBN) are still protected with `UNIQUE`.
+**Primary-key design.** Most entity tables use integer surrogate primary keys generated with `GENERATED ALWAYS AS IDENTITY`. This avoids using mutable attributes, such as names or email addresses, as relationship identifiers. The `title_author` table instead uses the composite key (`title_id`, `author_id`) because that pair uniquely identifies an author–title association. Natural identifiers remain protected by unique constraints where required.
 
-**Why no extra indexes?** PostgreSQL automatically indexes primary keys and `UNIQUE` columns, but not foreign keys. I deliberately left the other indexes out so that Portfolio 2 can measure a fair before-and-after improvement.
+**Indexing approach.** The initial implementation includes the indexes required for primary keys, unique constraints and conditional uniqueness rules. Additional query-performance indexes were deliberately left for Portfolio 2, where their effect could be benchmarked. The audit implementation separately creates `idx_audit_table_row` and `idx_audit_changed_at` on `audit_log` to support searches by affected record and time. PostgreSQL does not automatically create an index on every referencing foreign-key column.
 
 ---
 
-## 4. Keys and constraints in use
+## 4. Integrity Constraints: Implementation and Validation
 
-| Kind | Example in this schema | What it prevents |
+Integrity constraints were implemented within PostgreSQL to enforce entity identity, referential validity and business rules independently of the client issuing an operation.
+
+| Mechanism | Schema example | Integrity requirement |
 |---|---|---|
-| Primary key | `copy.copy_id` | Two rows with the same identity |
-| Composite primary key | `title_author (title_id, author_id)` | The same author listed twice on one title |
-| Foreign key | `loan.member_id → member` | A loan for a member who does not exist |
-| `UNIQUE` | `copy.barcode`, `member.email` | Duplicate barcodes or accounts |
-| `NOT NULL` | `member.last_name` | Missing mandatory data |
-| `CHECK` | `fine.amount > 0` | Negative or zero money values |
-| Partial unique index | one active loan per copy | A copy being lent to two people at once |
+| Primary key | `copy.copy_id` | Every copy has a unique identifier |
+| Composite primary key | `title_author (title_id, author_id)` | An author–title association cannot be duplicated |
+| Foreign key | `loan.member_id` → `member.member_id` | A loan must reference an existing member |
+| `UNIQUE` | `copy.barcode`, `member.email` | Identifiers cannot be duplicated |
+| `NOT NULL` | `member.last_name` | Required attributes cannot be omitted |
+| `CHECK` | `fine.amount > 0` | Fine amounts must be positive |
+| Partial unique index | `uq_one_active_loan_per_copy` | A copy cannot have two active loans simultaneously |
 
-The partial indexes are the most useful feature in this design. For example, `uq_one_active_loan_per_copy` is declared as `UNIQUE (copy_id) WHERE returned_at IS NULL`. It only looks at unreturned loans, so a copy can have many *past* loans but only one *current* one. This is documented in the PostgreSQL manual ([partial indexes](https://www.postgresql.org/docs/16/indexes-partial.html)).
+A key design choice was the use of a **partial unique index** for loan availability. The index `uq_one_active_loan_per_copy` enforces uniqueness on `copy_id` only where `returned_at IS NULL`. Consequently, the same copy may appear in multiple historical loans, but no second loan may remain active while an earlier loan is unreturned. This preserves loan history while enforcing the current lending restriction at the database level. The mechanism is described in the [PostgreSQL 16 partial-index documentation](https://www.postgresql.org/docs/16/indexes-partial.html).
+
+**Validation procedure.** I used `03_constraint_tests.sql` to submit 18 deliberately invalid operations and check that the database rejected them. The script also tests a valid loan and rolls back that demonstration transaction. The recorded results are shown in [`evidence/03_constraint_tests.png`](evidence/03_constraint_tests.png). These tests provide evidence that the specified constraints are active; they do not establish that every conceivable invalid operation has been tested.
 
 ---
 
-## 5. Normalisation
+## 5. Normalisation and Relational Design Trade-offs
 
-Normalisation organises data so that each fact is stored once. This avoids contradictory copies of the same fact and the update, insertion and deletion problems that follow (course notes, Study Session One, "Normalisation").
+The schema separates attributes according to their dependencies in order to reduce unnecessary duplication and the update, insertion and deletion anomalies associated with a single combined borrowing record. The process is illustrated below using UPLN's catalogue and circulation data.
 
-### 5.1 Starting point: one flat "borrowing sheet"
+### 5.1 Unnormalised Borrowing Record and Data Anomalies
 
-Imagine the library kept everything in one wide table, one row per loan:
+An initial, unnormalised representation could place member, catalogue, copy and loan information in one record, with fields such as:
 
 `member_name, member_email, membership_type, loan_days, fine_per_day, home_branch, branch_city, title, isbn, authors, publisher, publisher_country, copy_barcode, branch_holding_copy, loaned_at, due_at, returned_at`
 
-This design has three kinds of problem:
+This arrangement would create the following anomalies:
 
-| Anomaly | Example in this system |
+| Anomaly | Example within UPLN |
 |---|---|
-| **Update** | If the Student fine rate changes from ₦25 to ₦30, every row of every student loan must be edited. Missing one leaves two different rates for the same membership type. |
-| **Insertion** | A new title cannot be recorded until someone borrows it, and a new member cannot be recorded until they borrow something. |
-| **Deletion** | Deleting a member's only loan also deletes the only record of the member, and deleting the only loan of a book also deletes the book's details. |
+| **Update anomaly** | Changing the Student membership fine rate from ₦25 to ₦30 would require updates to every affected borrowing record; an omitted update could leave conflicting rates |
+| **Insertion anomaly** | A new title or member could not be stored independently if the combined record required an associated loan |
+| **Deletion anomaly** | Removing the only borrowing record for a particular member or title could also remove the only record of that member's or title's details |
 
-### 5.2 First normal form (1NF): atomic values, no repeating groups
+The implemented relational schema addresses these issues by storing membership conditions, member details, catalogue information and circulation events in separate related tables.
 
-The `authors` column holds a list (for example "Silberschatz, Korth, Sudarshan"). Each cell must hold one value, so authors move into their own table, `author`, joined to titles by `title_author`. One row now means one author on one title.
+### 5.2 First Normal Form (1NF)
 
-### 5.3 Second normal form (2NF): no partial dependencies
+The illustrative borrowing record includes `authors` as a potentially multi-valued field. I separated authors into an `author` table and recorded their associations with titles through `title_author`, so each row of the junction table represents one author–title association. This avoids storing a repeating list of authors in a single relational attribute.
 
-A loan row is identified by the combination (member, copy, loan time). Many columns depend on only *part* of that identity:
+### 5.3 Second Normal Form (2NF)
 
-- member name, email and membership type depend only on the **member**, so they move to `member`.
-- title, ISBN and publisher depend only on the **copy** (through its title), so they move to `title` and `copy`.
+If the unnormalised borrowing record were identified by a combination such as member, copy and loan time, attributes describing the member or the copy would depend on only part of that combined identifier. For example, membership information depends on the member, while title and publisher information depend on the copy's associated title. The relational design therefore stores these attributes in their respective entity tables.
 
-### 5.4 Third normal form (3NF): no transitive dependencies
+This composite identifier is used to explain the normalisation problem; **the implemented `loan` table uses `loan_id` as its primary key**. The `title_author` table provides an actual example of a composite primary key in the final design.
 
-A non-key column must depend on the key and nothing else. These chains were removed:
+### 5.4 Third Normal Form (3NF)
 
-| Chain (A → B → C) | Problem | Fix |
+The schema also separates attributes that would otherwise be transitively dependent on the identifier of another entity. The examples below show the dependencies addressed in the design.
+
+| Dependency in a combined record | Potential issue | Implemented decomposition |
 |---|---|---|
-| `member_id → type_id → loan_days, fine_per_day, max_loans` | Loan rules repeated on every member | Rules stored once in `membership_type` |
-| `title_id → publisher_id → publisher_country` | Country repeated for every title | `publisher` table |
-| `title_id → category_id → category_name` | Category text repeated | `category` table |
-| `member_id → home_branch_id → branch_city` | City repeated for every member | `branch` table |
+| `member_id → type_id → loan_days, fine_per_day, max_loans` | Membership rules repeated for each member | Store rules in `membership_type` and reference them from `member` |
+| `title_id → publisher_id → publisher_country` | Publisher information repeated across titles | Store publisher information in `publisher` |
+| `title_id → category_id → category_name` | Category names repeated across titles | Store categories in `category` |
+| `member_id → home_branch_id → branch_city` | Branch details repeated across members | Store branch details in `branch` |
 
-### 5.5 Boyce-Codd normal form (BCNF) check
+These decompositions reduce the risk that the same membership rule, publisher, category or branch is represented inconsistently across multiple records.
 
-In each table, every column that determines other columns is a candidate key. For example, in `member` both `member_id` and `email` identify a member, and both are protected by key constraints (`PRIMARY KEY` and `UNIQUE`). In `title_author` the only determinant is the composite key. No table has a determinant that is not a key, so the schema meets BCNF.
+### 5.5 Boyce–Codd Normal Form (BCNF) Assessment
 
-### 5.6 Deliberate exceptions (controlled denormalisation)
+BCNF requires every determinant in a non-trivial functional dependency to be a superkey. I considered this requirement when identifying keys and separating attributes into their respective tables. For example, `member_id` is the declared primary key of `member`, and the non-null, unique `email` attribute is also a candidate key. Membership-type rules are placed in `membership_type` rather than repeated in `member`. In `title_author`, the pair (`title_id`, `author_id`) is the declared composite key of the association.
 
-A good design explains where it *chooses* to bend the rules. I made three such choices:
+These examples support the normalisation decisions described above, but they are **not a formal proof that all 17 tables satisfy BCNF**. Such a claim would require a complete analysis of the functional dependencies applicable to each table. The demonstrated decomposition directly addresses the identified 1NF, 2NF and 3NF issues without overstating the scope of the BCNF assessment.
 
-| Choice | Why | Risk and how I manage it |
+### 5.6 Controlled Redundancy and Operational State
+
+Not every operational attribute can be evaluated solely by eliminating redundancy. Two attributes were retained to support day-to-day circulation functions, with their consistency implications identified explicitly.
+
+| Design decision | Operational justification | Consistency risk and control |
 |---|---|---|
-| `copy.status` (for example `on_loan`) can be worked out from the loans table | Checking availability must be fast, and Portfolio 3 needs a single row to lock when two people borrow the same copy | The two could drift apart. A check query (below) finds any mismatch, and the transactions in Portfolio 3 update both together |
-| `copy.branch_id` (where a copy currently is) can be worked out from the latest return or transfer | Same reason: fast lookup for "what is at this branch?" | Same protection |
-| `loan.checkout_branch_id` and `return_branch_id` are stored even though the issuing staff member has a home branch | A staff member may work a shift at another branch, so the branch of the *event* is a separate fact from the branch of the *employee* | Both are foreign keys, so they must be real branches |
+| Store `copy.status` even though an active loan can be identified through `loan` | Enables direct availability checks and provides a row that can be locked during checkout | The stored status could disagree with an active loan. A reconciliation query detects discrepancies, while the transactions in Portfolio 3 update the relevant records together |
+| Store `copy.branch_id` as the current holding branch | Supports efficient branch-level inventory checks | The recorded location must be maintained as transfers and returns occur. A complete reconciliation against transfer history was not implemented in this portfolio |
 
-I **avoided** one denormalisation: I did not store a "paid / unpaid" status on `fine`. It is computed from the payments by `v_fine_balance`, so it can never go out of step with them.
+The `loan.checkout_branch_id` and `loan.return_branch_id` fields describe distinct circulation events, not merely the issuing employee's home branch. The library permits a return to a different branch, so the event locations must be recorded independently. Foreign keys validate that those branch records exist.
 
-Consistency check for the first exception (expected result: zero rows):
+I did not introduce a separate paid/unpaid flag for fines. Instead, the `v_fine_balance` view derives the amount paid and outstanding balance from the underlying `fine` and `payment` records, avoiding the need to keep a duplicated status field synchronised with the payment history.
+
+The following query checks whether the stored copy status agrees with the presence of an active loan. When the two representations are consistent, the expected result is zero rows:
 
 ```sql
 SELECT c.copy_id, c.status, l.loan_id
@@ -209,10 +229,11 @@ WHERE (c.status = 'on_loan') <> (l.loan_id IS NOT NULL);
 ```
 
 ---
+## 6. Implementation, Execution and Test Verification
 
-## 6. How to run it
+### 6.1 Execution Environment and Procedure
 
-From the repository root, with the database container running (`docker compose up -d`):
+The implementation was executed against PostgreSQL 16 in Docker within a GitHub Codespace. From the repository root, the database container must first be started with `docker compose up -d`. The following commands execute the portfolio activities in the documented dependency order:
 
 ```bash
 docker compose exec -T postgres psql -U library_admin -d upln -v ON_ERROR_STOP=1 < portfolio-1-database-design/01_schema.sql
@@ -230,173 +251,231 @@ bash portfolio-1-database-design/10b_run_encryption.sh
 docker compose exec -T postgres psql -U library_admin -d upln < portfolio-1-database-design/11_sql_injection_demo.sql
 ```
 
-Run them in this order. `06b` makes four real changes that stay in the audit log, and `09b` and `10b` generate random passwords and keys that exist only in the terminal session (nothing secret is written to the repository).
+The sequence is necessary because later tests depend on tables, roles, functions or triggers established in earlier stages. The audit demonstration, `06b_audit_demo.sql`, performs four sample changes that generate persistent entries in `audit_log`. By contrast, the authentication and encryption test runners generate their demonstration credentials and keys during execution rather than placing those values in the repository. The separate static development password described in Section 7.10 is a known limitation of this laboratory configuration.
 
-The scripts are safe to re-run: the schema script drops and recreates the 15 core tables, and the sample data always loads the same rows. After re-running `01_schema.sql` run `04` and `06` to `10` again, because the roles' permissions, triggers and extra tables belong to the objects that were dropped.
+**Reset and repeatability.** The scripts are intended for a disposable synthetic test environment. Rerunning `01_schema.sql` drops and recreates the 15 core tables, so it is **destructive** to data already held in those tables. Following a schema reset, the relevant security, audit, payment and encryption scripts must be executed again to restore their dependencies. This procedure must not be used on a database containing records that need to be preserved.
 
-To regenerate the diagram (needs the PostgreSQL client and Graphviz: `sudo apt-get update && sudo apt-get install -y postgresql-client graphviz`):
+The diagram can be regenerated using the PostgreSQL client and Graphviz. The commands below reflect the supplied laboratory configuration:
 
 ```bash
+sudo apt-get update && sudo apt-get install -y postgresql-client graphviz
 cd portfolio-1-database-design
 PGHOST=localhost PGUSER=library_admin PGPASSWORD=library_dev_pw PGDATABASE=upln python3 build_er_diagram.py
 ```
 
-### Expected results
+### 6.2 Test Procedures and Recorded Outcomes
 
-- Schema script: no errors; `\dt` lists 15 tables.
-- Sample data: 5 branches, 3 membership types, 8 members, 8 staff, 10 titles, 19 copies, 10 loans, 3 fines.
-- Constraint tests: **18 rows, every one marked `PASS (rejected)`**, followed by one valid loan that is accepted and then rolled back.
-- Security script: no errors.
-- Security tests: **14 rows, every one marked `PASS`**, then the masked member list, and the row-level security demonstrations (member 1 sees 2 loans, member 7 sees 2 loans, a logged-out member sees 0, a librarian sees all 10).
-- Audit demo: 4 audit entries, with the tampering attempt refused. Audit tests: **18 rows, every one `PASS`**.
-- Payment guard tests: **6 rows, every one `PASS`**.
-- Login script: a wrong password is refused (`FATAL: password authentication failed`); the librarian login cannot delete loans or read the audit log; the auditor sees the real login name in the trail.
-- Encryption: **10 rows, every one `PASS`**. SQL injection demo: the unsafe search returns 1, 8 and 8 rows for the three inputs; the safe search returns 1, 0 and 0; the last attack is refused for the member-app role.
+The tests combine positive cases, which establish that permitted operations succeed, and negative cases, which establish that specified invalid operations or unauthorised actions are rejected. The recorded outcomes from the portfolio are summarised below; evidence files are mapped to the tests in Section 8.
 
-One detail worth knowing: after the tests, the valid test loan shows an ID higher than 11. This is normal. PostgreSQL's ID counters never roll back, so the failed inserts "used up" some numbers. IDs are unique, not gap-free.
+| Activity | Recorded verification outcome |
+|---|---|
+| Schema creation | The schema executed without reported errors; `\dt` displayed the 15 core tables before the two security-related tables were introduced |
+| Sample data loading | Five branches, three membership types, eight members, eight staff, ten titles, 19 copies, ten loans and three fines were loaded |
+| Integrity constraint testing | All 18 deliberate invalid-operation tests returned `PASS (rejected)`; a valid loan was accepted and its test transaction rolled back |
+| Security and permissions | All 14 access-control tests passed; row-level security demonstrations returned two loans for member 1, two for member 7, none without a member identity and all ten for the permitted librarian role |
+| Audit logging | The demonstration generated four audit entries and refused a tampering attempt; all 18 audit tests passed |
+| Payment validation | All six fine-payment integrity tests passed |
+| Authentication | An incorrect password was rejected with `FATAL: password authentication failed`; the librarian account could neither delete loans nor read the audit log; the audit trail identified the demonstrated login |
+| Encryption and hashing | All ten tests passed, covering encryption, decryption, incorrect-key behaviour, restricted access, redaction and password hashing |
+| SQL injection demonstration | The unsafe search returned 1, 8 and 8 rows across its three test inputs; the parameterised version returned 1, 0 and 0; the restricted-role data-access attempt was rejected |
+
+The recorded PASS results describe the scenarios exercised by the corresponding scripts, not exhaustive assurance of all possible inputs or production conditions.
+
+**Additional observation.** After several unsuccessful insert attempts, the valid test loan received an identifier higher than the next consecutive value. This is expected PostgreSQL behaviour because values obtained from sequences are not reversed by transaction rollback. The gaps therefore did not indicate missing loan records; they illustrated that identity-generated keys provide uniqueness, not gap-free numbering.
 
 ---
 
-## 7. Security and privacy
+## 7. Security and Privacy Implementation
 
-A library holds personal data about its members (names, emails, phone numbers, home addresses, and in this design an identity number) and its borrowing history, which reveals what people read. Protecting that data is part of good database design. The course notes (Study Session Three) list the mechanisms of database security: authentication and authorisation, access control, encryption, auditing and monitoring, and backup and recovery. Data protection law also applies: in Nigeria this is the **Nigeria Data Protection Act 2023 (NDPA)**, whose principles include collecting only the data needed and keeping it secure. The table below shows which mechanism is covered where.
+The UPLN model contains member contact details, an identity-number demonstration and borrowing records that may reveal individual reading preferences. Although the assessment uses synthetic data, the security implementation was designed around controlled authentication, authorisation, data exposure, auditability and protection of sensitive fields. These areas correspond to the database security and privacy topics addressed in the course materials. In an operational Nigerian library, the Nigeria Data Protection Act 2023 would also be relevant to the treatment of personal data.
 
-| Course mechanism | What I implemented | Section | Script |
+The controls and their associated implementation files are mapped below.
+
+| Security area | Implemented component | Section | Relevant scripts |
 |---|---|---|---|
-| Authorisation, role-based access control, least privilege | Five job roles, column-level permissions, separation of duties | 7.1 | `04`, `05` |
-| Privacy by design / data minimisation | Masking views, redacted audit entries, row-level security | 7.2, 7.3, 7.5 | `04`, `06` |
-| Auditing | Append-only audit log fed by triggers | 7.5 | `06`, `07` |
-| Integrity of money | Payment guard trigger | 7.6 | `08` |
-| Authentication | Login accounts, SCRAM-SHA-256 password hashes, expiry | 7.7 | `09` |
-| Encryption | Encrypted identity number, salted password hashing; transit and disk encryption explained | 7.8 | `10` |
-| Injection attacks | Unsafe versus safe query, with least privilege as a safety net | 7.9 | `11` |
-| Monitoring, backup and recovery | **Not in this portfolio.** Backup, recovery and cloud monitoring are covered in Portfolio 5 | 7.10 | |
+| Authorisation and least privilege | Role-based and column-level permissions, separation of duties | 7.1 | `04_security_privacy.sql`, `05_security_tests.sql` |
+| Data minimisation and controlled disclosure | Masked reporting views, row-level security and audit-field redaction | 7.2, 7.3, 7.5 | `04_security_privacy.sql`, `06_audit_log.sql` |
+| Auditability | Trigger-based audit log with restrictions on alteration | 7.5 | `06_audit_log.sql`, `07_audit_tests.sql` |
+| Financial integrity | Fine-payment validation trigger and row locking | 7.6 | `08_payment_guard.sql`, `08b_payment_guard_tests.sql` |
+| Authentication | Demonstration login accounts and SCRAM-SHA-256 authentication | 7.7 | `09_authentication.sql`, `09b_login_tests.sh` |
+| Encryption and password hashing | Encrypted identity number and salted password-hash demonstration | 7.8 | `10_encryption.sql`, `10b_run_encryption.sh` |
+| Injection prevention | Parameterised queries and restricted-role tests | 7.9 | `11_sql_injection_demo.sql` |
+| Recovery and monitoring | Outside Portfolio 1's implementation scope; separate laboratory exercises in Portfolio 5 | 7.10 | — |
 
-### 7.1 Roles and least privilege
+### 7.1 Role-Based Access Control and Least Privilege
 
-Instead of giving every user the same powers, I created one **role** per kind of user. Each role is given only what its job needs, and everything starts from "no access".
+I implemented role-based access control by defining permissions according to the functions performed by library users. The access model separates five operational roles and an additional auditor role. Rather than assigning unrestricted rights to all accounts, permissions were granted only for the operations required by each role.
 
-| Role | Who it represents | What it may do | What it may not do |
+| Role | Operational responsibility | Permitted access | Principal restrictions |
 |---|---|---|---|
-| `upln_librarian` | Front-desk staff | Read catalogue, members, loans; issue loans; take payments; update a member's phone, address and status; update a copy's status and location | Delete anything; change a member's name or email; waive fines |
-| `upln_branch_manager` | Branch managers | Everything a librarian can, plus manage the collection and transfers, and **waive fines** | Delete records |
-| `upln_hq_admin` | Headquarters administrators | Full data access, including deletes; may read the audit log | Change the database structure (they do not own the tables), act as a superuser, or alter the audit log |
-| `upln_analyst` | Reporting and planning staff | Read two privacy-safe views only | Read any raw table |
-| `upln_member_self` | The member self-service app | Read the public catalogue and *their own* records | Edit anything; read staff, fines or payments |
-| `upln_auditor` | Auditor (added in `06`) | Read the audit trail | Change any data |
+| `upln_librarian` | Front-desk circulation | Read permitted catalogue, member and loan data; issue loans; record payments; update specified member and copy fields | Cannot delete records, modify member names or email addresses, or waive fines |
+| `upln_branch_manager` | Branch operations | Librarian privileges plus collection and transfer management and fine waivers | Cannot delete operational records |
+| `upln_hq_admin` | Headquarters administration | Broad access to operational data, including deletion, and permission to read the audit log | Does not own the schema, possess superuser privileges or have authority to alter the audit trail |
+| `upln_analyst` | Reporting and planning | Read access to two privacy-preserving views | No direct access to underlying personal-data tables |
+| `upln_member_self` | Member self-service | Read permitted catalogue data and records associated with the supplied member identity | Cannot modify records or access staff, fine or payment information |
+| `upln_auditor` | Independent audit review | Read audit records | No permission to modify the audit trail or operational data |
 
-Two details worth noting:
-- **Column-level permissions.** A librarian may update a member's `phone`, `address` and `status`, but not `email` or the name. Permissions can be granted per column, not just per table.
-- **Separation of duties.** Only a branch manager can waive a fine. A librarian who takes payments cannot also cancel what a member owes.
+The design also applies two more specific controls. First, **column-level permissions** restrict the librarian's updates to permitted attributes such as `member.phone`, `member.address` and `member.status`, rather than allowing changes to all member fields. Second, **separation of duties** restricts fine waivers to the branch-manager role, separating that decision from the librarian's responsibility for receiving payments.
 
-### 7.2 Privacy-safe views (data minimisation)
+### 7.2 Privacy-Preserving Views and Data Minimisation
 
-Analysts need statistics, not personal details. The view `v_member_directory_masked` shows each member as, for example, *Adaeze O., ad\*\*\*@example.com, Standard, Lagos*, and leaves out the phone number and address completely. The view `v_branch_activity` shows only totals per branch. The analyst role has **no access to the underlying tables**, so the views are the only way in. This follows the principle of collecting and exposing no more personal data than the task needs.
+Reporting requirements do not necessarily justify access to complete member records. The view `v_member_directory_masked` therefore presents a limited directory containing partially masked identifiers and selected operational attributes, while omitting full contact details. For example, a record can be displayed as *Adaeze O., ad\*\*\*@example.com, Standard, Lagos*. The view `v_branch_activity` provides aggregated branch-level information.
 
-### 7.3 Row-level security
+The `upln_analyst` role receives access to these reporting views rather than the underlying personal-data tables. The purpose of this design is to provide the information needed for reporting while reducing unnecessary exposure of identifiable member data. The views and permission restrictions are demonstrated in the security tests.
 
-For the member self-service app, table permissions alone are not enough, because members must see *some* rows of `loan` and `member` (their own) but not others. PostgreSQL's **row-level security** solves this. The app tells the database who is logged in (`SET app.current_member_id = '1'`), and a policy lets that role see only rows where `member_id` matches. Without a login, the member role sees **zero** rows. Staff roles have an explicit "see all rows" policy, because once row-level security is switched on, a role with no matching policy sees nothing.
+### 7.3 Row-Level Security
 
-### 7.4 Results of the first security layer
+Table-level privileges alone would not provide member-specific access to shared `member` and `loan` tables. To demonstrate row-level access restrictions, I configured PostgreSQL row-level security (RLS) policies that filter records using a session value representing the member identity, for example:
 
-The 14 tests in `05_security_tests.sql` all pass. For example, a librarian's attempt to delete a loan and a branch manager's attempt to waive a fine are tested in both directions: refused for the role that should not have the power, allowed for the role that should. I also checked the test harness itself by giving it two deliberately wrong expectations, and it correctly reported `FAIL` for both.
+```sql
+SET app.current_member_id = '1';
+```
 
-### 7.5 Audit log (who did what, and when)
+The documented tests confirm that sessions configured for members 1 and 7 return their respective loan records, while a session without a member identity returns no member loans. A separately permitted librarian role can access the full set of ten loans in the sample database.
 
-Permissions say who *may* act. An audit log records who *did*. `06_audit_log.sql` adds a table `audit_log` and a trigger on eight tables (`member`, `staff`, `loan`, `fine`, `payment`, `copy`, `reservation` and later `member_identity`). Every insert, update or delete writes one row: the time, the table, the row's key, the login name, the role in force, the staff member named by the application (`SET app.staff_id`), which columns changed, and the old and new values as JSON.
+**Limitation of the demonstration.** The filtering test verifies the policy's behaviour for the member identifier supplied to PostgreSQL; it does not prove that this identifier is securely bound to an authenticated user. An application that allows an untrusted user to change the session variable could permit impersonation. A production design would need to establish the member identity through trusted authentication logic and prevent users from controlling that value directly.
 
-Design decisions:
-- **Privacy inside the log.** Phone numbers, addresses and the encrypted identity value are replaced by `[REDACTED]` in the log. The log shows *that* a phone number changed, not what it is, so the audit trail does not become a second copy of personal data.
-- **The log cannot be avoided.** The trigger function is `SECURITY DEFINER`, so ordinary users, who have no access to the log, still cause entries to be written. A change that fails and rolls back leaves no entry, because the entry is part of the same transaction.
-- **The log cannot be altered.** No role is granted write access, and further triggers refuse `UPDATE`, `DELETE` and `TRUNCATE` even for the table owner. Only the auditor and HQ administrator roles may read it.
-- **A bug I found and fixed.** My first version recorded the function owner's name as the acting role, because inside a `SECURITY DEFINER` function the current user is the owner. My own test caught it. The fix reads the role from the `role` setting, and the tests now check that the role is recorded correctly.
+### 7.4 Authorisation Test Results
 
-`07_audit_tests.sql` runs 18 tests (changes are logged with the right facts, redaction works, the administrator cannot update, delete or truncate the log, nobody can forge an entry, only the right roles can read it). It runs inside a transaction that is rolled back, so it leaves no trace. I also confirmed the tests can fail: in a scratch copy I deliberately removed the protective trigger on the log, the audit trigger on `member` and a permission, and six of the tests reported `FAIL`.
+The `05_security_tests.sql` script executed 14 permission checks, all recorded as passing. The tests included attempts to perform restricted operations, such as deleting loan records without sufficient privileges and waiving fines using a role not authorised for that function. Corresponding authorised operations were tested to distinguish correct permission grants from blanket denial of access.
 
-### 7.6 Payment guard
+I also checked whether the test harness could recognise an incorrect expected outcome. Two deliberately incorrect expectations produced `FAIL`, providing additional confidence that the harness was not simply marking every operation as successful. The recorded results and RLS demonstrations are included in the evidence directory.
 
-`08_payment_guard.sql` adds a trigger on `payment`. It locks the fine's row, then refuses a payment that exceeds the outstanding balance, a payment on a waived fine, and a payment on a fine that does not exist. The lock matters for concurrency: two cashiers paying the same fine at the same moment are checked one after the other, not both against the same old balance. `08b_payment_guard_tests.sql` passes 6 tests, including two payments that together exceed the balance. Portfolio 3 will test the two-cashier case with real concurrent sessions.
+### 7.5 Audit Logging and Tamper Resistance
 
-### 7.7 Authentication
+The audit-control design records database modifications so that changes can be associated with the affected table, record and available session context. The `06_audit_log.sql` script introduces the `audit_log` table and trigger-based recording for the core operational tables, including `member`, `staff`, `loan`, `fine`, `payment`, `copy` and `reservation`. The encryption activity extends audit handling to `member_identity`.
 
-So far the roles were job titles that nobody could log in as. `09_authentication.sql` creates two real accounts, `staff_amina` (a librarian) and `auditor_ngozi` (the auditor), and gives each the rights of one job role. They cannot create users or databases and are not superusers.
+For recorded insert, update and delete events, the audit record includes the event time, affected table and row, database login context, active role, application-supplied staff identifier (`app.staff_id`), changed fields and relevant old/new values represented as JSON. The following design decisions address the usefulness and limits of this audit trail:
 
-- **No password in the repository.** `09b_login_tests.sh` generates random passwords for the run, passes them to the script and never writes them to a file. The database stores only a salted **SCRAM-SHA-256** hash (the `SCRAM-SHA-256$…` value shown in the evidence), and the passwords expire on 30 June 2027.
-- **Proof by logging in.** The script connects over the network. A wrong password is refused with `FATAL: password authentication failed`. The librarian login is refused when it tries to delete a loan or read the audit log. The auditor sees the real login name `staff_amina` in the audit trail.
-- **How the server decides.** The evidence shows the connection rules (`pg_hba.conf`): network connections must prove identity with `scram-sha-256`. The `trust` lines are the container's own local connections inside the practice container, which would not exist in production.
+- **Sensitive-field redaction:** Selected values, including member phone numbers, addresses and encrypted identity data, are replaced by `[REDACTED]` within audit entries. This permits a change to be traced without unnecessarily duplicating the protected field value in the log.
+- **Controlled audit writes:** The trigger function executes as `SECURITY DEFINER`, allowing approved data operations to generate audit records even where the acting role is not authorised to insert directly into `audit_log`. Audit changes occurring within a rolled-back transaction are also rolled back; consequently, the log records committed database modifications rather than failed transaction attempts.
+- **Tamper restrictions:** Ordinary roles are not granted write access to `audit_log`, while protective triggers reject `UPDATE`, `DELETE` and `TRUNCATE`. Audit read access is limited to designated roles. These controls are not equivalent to immutable external logging: a database superuser may still be able to disable or bypass the database-level protections.
 
-### 7.8 Encryption and hashing
+**Implementation defect and resolution.** During testing, the initial audit implementation recorded the `SECURITY DEFINER` function owner's identity as the acting role. I traced this to the privilege context under which the function executes and revised the audit logic to obtain the role from the session's role setting. Subsequent tests checked that the intended role was recorded. This issue was discovered through execution of the tests rather than assumed to be correct from the script definition alone.
 
-`10_encryption.sql` uses the `pgcrypto` extension.
-- **Encrypted identifier.** A table `member_identity` stores a National Identification Number (synthetic values only) as ciphertext produced with AES-256 (`pgp_sym_encrypt`), plus the last four digits for desk staff. Without the key, a stolen database file or backup shows only scrambled bytes. The key is supplied at run time from outside the database and is never committed. Ten tests pass: the plain number is not found in the stored bytes; the right key recovers it; a wrong key fails; the same number encrypts to different bytes each time; a librarian can read only the last four digits; an analyst cannot read the table; the audit log hides the encrypted value; and password hashing (`bcrypt` with a random salt) accepts the right password, rejects a wrong one and gives different hashes for the same password.
-- **Encryption in transit and at rest (honest scope).** The script checks the connection and reports that TLS is **off** in this practice container, which is reached over a private Docker network. I did not enable it here. A production or cloud deployment must require TLS and encrypted storage, and Portfolio 5 covers this in the cloud context.
-- **Key management.** A key held by the application, as in the demo, is only as safe as the place it is kept. A real system would keep it in a secrets manager and rotate it.
+The `07_audit_tests.sql` script completed 18 checks covering recorded activity, sensitive-field redaction, permitted access and rejection of alteration attempts. These tests were executed within a transaction that was rolled back, preventing their test modifications from remaining as operational records. To validate the test harness, I also deliberately disabled selected protections in a scratch environment; six tests then reported `FAIL`. The audit demonstration and results are recorded in `evidence/07_audit_log_demo.png` and `evidence/08_audit_tests.png`.
 
-### 7.9 SQL injection
+### 7.6 Fine-Payment Integrity Control
 
-`11_sql_injection_demo.sql` shows why the way queries are built matters. An unsafe search that glues the user's text into the command is attacked with the input `x' OR '1'='1`, which returns every member (8 rows instead of 1), and with a `UNION` input that returns staff email addresses from a different table. The safe version passes the text as a bound parameter, so the same inputs find nothing. The third part shows **defence in depth**: the same unsafe code is attacked while acting as the member-app role. Row-level security limits the "match all" attack to that member's own row, and the data-theft attack is refused outright because the role has no right to read the staff table. The vulnerable function exists only for the session and is not left in the database.
+The `08_payment_guard.sql` script implements a trigger on the `payment` table to validate fine payments against the corresponding outstanding balance and fine status. The control rejects payments that would exceed the amount owed and payments relating to waived fines. Referential-integrity constraints also prevent payments from referencing a fine that does not exist.
 
-(While building this demo my first version of the third part reported a syntax error that looked like a permission refusal. I noticed the message was wrong, fixed the test, and re-ran it so the evidence shows the real permission error.)
+For concurrent payment processing, the trigger acquires a row-level lock on the related fine before validating the amount. Transactions attempting to pay the same fine must therefore perform the relevant balance checks in sequence, rather than both proceeding against an unchanged outstanding balance. This is necessary because a valid individual payment could otherwise contribute to an invalid cumulative total.
 
-### 7.10 What I did not do, and why
+The `08b_payment_guard_tests.sql` script recorded **six successful checks**, including a scenario in which multiple payments would collectively exceed the fine balance. A separate concurrent-session experiment in Portfolio 3 examines the two-cashier scenario and the effect of the row-level lock under simultaneous execution.
 
-| Topic | Position |
+### 7.7 Database Authentication
+
+The access-control roles define permissions but do not, by themselves, establish individual login identities. To test authentication separately from authorisation, `09_authentication.sql` creates two PostgreSQL login accounts: `staff_amina`, associated with librarian privileges, and `auditor_ngozi`, associated with the auditor role. Neither demonstration account has superuser privileges or permission to create roles or databases.
+
+The implementation and tests cover three aspects of database authentication:
+
+- **Credential handling:** `09b_login_tests.sh` generates demonstration passwords during execution rather than committing them to the repository. PostgreSQL uses salted SCRAM-SHA-256 password verifiers for the login accounts. The configured passwords expire on 30 June 2027.
+- **Authentication outcomes:** The script attempts database connections using valid and invalid credentials. Invalid credentials are rejected with `FATAL: password authentication failed`, while successful authentication permits the user to establish a session.
+- **Authorisation after login:** Successful login does not override assigned database privileges. The librarian account is denied attempts to delete loan records or read the audit log; the auditor can inspect the audit trail, including the recorded login identity associated with the demonstration activity.
+
+The `pg_hba.conf` evidence also distinguishes network connections that require `scram-sha-256` authentication from the local `trust` rules present in the practice container. Those local trust settings are a laboratory convenience and would require a separate security review before any production deployment.
+
+### 7.8 Sensitive-Data Encryption and Password Hashing
+
+I used PostgreSQL's `pgcrypto` extension in `10_encryption.sql` to demonstrate protection of a sensitive member attribute. The `member_identity` table stores a synthetic National Identification Number (NIN) in encrypted form using `pgp_sym_encrypt`, with AES-256 selected in the implementation. A separate `nin_last4` attribute provides limited identification information for authorised front-desk use without exposing the full identifier.
+
+The ten recorded tests cover whether the original identifier is absent from the stored ciphertext, correct-key decryption, rejection of an incorrect key, different ciphertext outputs for repeated encryption of the same value, restricted display of the final four digits, denial of unauthorised table access, audit redaction and password hashing. The password-hashing demonstration uses a randomly salted bcrypt hash and verifies both successful and unsuccessful password checks.
+
+**Scope of encryption.** The demonstration protects the selected identity-number field; it does not encrypt the entire database or every value in a backup. The encryption key was provided at runtime rather than committed to the repository, but its protection would still depend on the security of the application or process supplying it. A production implementation would use controlled key storage and rotation, such as a secrets-management service.
+
+The test environment did **not** enable TLS for its Portfolio 1 database connection, and disk encryption was not demonstrated. The script reported that TLS was off. Consequently, the encrypted-column implementation must not be presented as evidence of encryption for all database traffic or stored data. Portfolio 5 separately demonstrates TLS connections in a distributed PostgreSQL laboratory.
+
+### 7.9 SQL Injection and Defence-in-Depth Testing
+
+The `11_sql_injection_demo.sql` script contrasts a query constructed by concatenating user-controlled input with a parameterised implementation. In the vulnerable version, the input `x' OR '1'='1` changes the logic of the search condition and returns all eight members instead of the intended match. A separate `UNION`-based input demonstrates how an unsafe query can expose staff email addresses when executed under a role with sufficient access.
+
+In the corrected implementation, the input is passed as a bound parameter rather than incorporated into SQL syntax. The same test inputs are therefore treated as search values, and the recorded results change from **1, 8 and 8** rows in the unsafe demonstration to **1, 0 and 0** in the parameterised version.
+
+I also executed the unsafe query under the restricted member-self-service role to examine the effect of database permissions when application-level query construction is insecure. Row-level security limited the broad-match result to the configured member identity, while an attempted read of the staff table was rejected for insufficient privileges. This illustrates the role of least privilege as an additional safeguard, not a replacement for parameterisation.
+
+**Test correction.** The initial version of the restricted-role demonstration produced a SQL syntax error rather than the intended permission error. I corrected the test and reran it so that the evidence reflected an actual access-control denial. The vulnerable demonstration was limited to the test session and was not retained as a permanent application function.
+
+### 7.10 Implementation Boundaries and Production Considerations
+
+The following distinctions identify controls demonstrated in Portfolio 1 and those that would require further work in an operational deployment.
+
+| Topic | Implemented position and limitation |
 |---|---|
-| **Group-role passwords** | The five job roles are group roles with no login. Only the two demonstration accounts can log in, with random run-time passwords. |
-| **The `docker-compose.yml` password** | `library_dev_pw` is committed for convenience. That is only acceptable because the database is a throwaway practice instance that holds **synthetic data only** and is not reachable from the internet. A real system would never commit it. |
-| **TLS and disk encryption** | Not enabled in the practice container (see 7.8). Covered conceptually here and in the cloud design in Portfolio 5. |
-| **Monitoring and alerting** | The audit log supports investigation after the fact, but I did not build live alerting. A production system would feed the log and the server logs to a monitoring tool. |
-| **Backup and recovery** | Planned for Portfolio 5, where it is combined with replication, recovery point and recovery time. |
-| **Audit log storage** | The log lives in the same database. A database superuser could still disable its protective triggers. A production system would also ship the log to separate write-once storage. |
-| **Real data** | All names, emails, phone numbers and identity numbers are synthetic, and the emails use the reserved `example.com` domain, so no real person's data is stored in this repository. |
+| **Database roles and logins** | Operational group roles do not provide login access. Two additional demonstration login accounts are created for authentication testing; the laboratory administrator account is separate |
+| **Static laboratory password** | `docker-compose.yml` contains the demonstration password `library_dev_pw`. This is a weakness accepted only within the disposable, synthetic laboratory configuration and must not be reused in an operational environment |
+| **Connection and storage encryption** | Selected column encryption is demonstrated, but TLS and full-disk encryption are not enabled in this Portfolio 1 database. Production deployment would require both transport and appropriate storage protection |
+| **Monitoring and alerting** | Audit records support retrospective review, but live alerting was not implemented. Production monitoring would require collection and analysis of database and audit events |
+| **Backup and recovery** | Backup, point-in-time recovery, replication and failover are not Portfolio 1 test results; these are addressed in separate laboratory activities in Portfolio 5 |
+| **Audit-log trust boundary** | Audit records remain in the same PostgreSQL instance. A privileged superuser may be able to defeat the database-level safeguards; external protected logging would provide stronger separation |
+| **Member-specific access** | RLS demonstrates filtering by a session-provided identity, not the complete authentication-to-identity binding required for a secure self-service application |
+| **Synthetic data** | The dataset contains no actual member personal information; demonstration email addresses use the reserved `example.com` domain |
 
-### 7.11 Test summary for the security work
+### 7.11 Security and Integrity Test Summary
 
-| Script | Tests | Result |
+| Test script | Scope | Recorded outcome |
 |---|---|---|
-| `03_constraint_tests.sql` | 18 integrity tests | all pass |
-| `05_security_tests.sql` | 14 permission tests | all pass |
-| `07_audit_tests.sql` | 18 audit tests | all pass |
-| `08b_payment_guard_tests.sql` | 6 payment tests | all pass |
-| `10_encryption.sql` | 10 encryption and hashing tests | all pass |
-| `09b_login_tests.sh`, `11_sql_injection_demo.sql` | demonstrations (observed outcomes, shown in the evidence) | as described above |
+| `03_constraint_tests.sql` | 18 integrity and business-rule tests | All passed |
+| `05_security_tests.sql` | 14 permission tests | All passed |
+| `07_audit_tests.sql` | 18 audit-control tests | All passed |
+| `08b_payment_guard_tests.sql` | Six payment-integrity tests | All passed |
+| `10_encryption.sql` | Ten encryption and hashing tests | All passed |
+| `09b_login_tests.sh` and `11_sql_injection_demo.sql` | Authentication and injection demonstrations | Outcomes recorded in Sections 7.7 and 7.9 and the corresponding screenshots |
 
 ---
 
-## 8. Evidence
+## 8. Supporting Evidence and Traceability
 
-Screenshots are in [`evidence/`](evidence/):
+The [`evidence/`](evidence/) directory contains screenshots of script execution and recorded results, with the clock visible as part of the original evidence capture. These images document the outcomes of my runs; the SQL and shell scripts provide the separate procedures needed to repeat the tests. The table below maps the evidence files to the relevant portfolio activities.
 
-| File | Shows |
+| Evidence file | Recorded content |
 |---|---|
-| `01_tables_created.png` | `\dt` listing the 15 core tables (taken before the security scripts added two more) |
-| `02_sample_data_loaded.png` | Row counts after loading the data |
-| `03_constraint_tests.png` | All 18 tests passing |
-| `04_fine_balance_view.png` | Output of `SELECT * FROM v_fine_balance;` |
-| `05_security_tests.png` | All 14 security tests passing |
-| `06_row_level_security.png` | Row-level security demonstrations (members 1 and 7, nobody logged in, librarian) |
-| `07_audit_log_demo.png` | A simulated working day and the auditor's view of the trail; the tampering attempt is refused |
-| `08_audit_tests.png` | All 18 audit tests passing |
-| `09_payment_guard_tests.png` | All 6 payment guard tests passing |
-| `10_authentication_a.png`, `10_authentication_b.png` | Hashed passwords, roles, connection rules, then wrong password refused, correct login accepted, least privilege and the audit trail showing the real login name |
-| `11_encryption.png` | Ciphertext in the table, all 10 encryption tests passing, and the TLS check |
-| `12_sql_injection_a.png`, `12_sql_injection_b.png` | Unsafe search attacked, safe search resisting, and the defence-in-depth refusal |
+| [`01_tables_created.png`](evidence/01_tables_created.png) | `\dt` output showing the 15 core tables before the additional security tables were created |
+| [`02_sample_data_loaded.png`](evidence/02_sample_data_loaded.png) | Row counts following sample-data loading |
+| [`03_constraint_tests.png`](evidence/03_constraint_tests.png) | Results of the 18 constraint tests |
+| [`04_fine_balance_view.png`](evidence/04_fine_balance_view.png) | Output from `SELECT * FROM v_fine_balance;` |
+| [`05_security_tests.png`](evidence/05_security_tests.png) | Results of the 14 permission tests |
+| [`06_row_level_security.png`](evidence/06_row_level_security.png) | RLS results for configured member identities, an unset identity and a permitted staff role |
+| [`07_audit_log_demo.png`](evidence/07_audit_log_demo.png) | Recorded audit activity, auditor access and rejected tampering attempt |
+| [`08_audit_tests.png`](evidence/08_audit_tests.png) | Results of the 18 audit tests |
+| [`09_payment_guard_tests.png`](evidence/09_payment_guard_tests.png) | Results of the six payment-integrity tests |
+| [`10_authentication_a.png`](evidence/10_authentication_a.png) and [`10_authentication_b.png`](evidence/10_authentication_b.png) | Authentication configuration, failed and successful login attempts, permission checks and logged identity |
+| [`11_encryption.png`](evidence/11_encryption.png) | Encrypted attribute, hashing checks, ten test results and TLS-status check |
+| [`12_sql_injection_a.png`](evidence/12_sql_injection_a.png) and [`12_sql_injection_b.png`](evidence/12_sql_injection_b.png) | Unsafe and parameterised query results and restricted-role denial |
 
 ---
 
-## 9. Design decisions, limitations and future work
+## 9. Individual Technical Reflection
 
-- **Single-currency, single-country.** All money is in naira, and there is no tax or currency conversion.
-- **Audit scope.** The audit log records changes (insert, update, delete). It does not record who merely *read* personal data. Read-auditing would need database logging or an extension and is listed as future work.
-- **Reservation queue order** is implied by `reserved_at`. A real system would also need rules for which returned copy satisfies which reservation. Portfolio 3 touches on this.
-- **Data volume.** The sample data is deliberately tiny so it can be read and checked by hand. Portfolio 2 generates much larger data to test performance.
+My previous database experience was primarily with MySQL, so this portfolio required me to develop practical familiarity with PostgreSQL 16 while implementing and testing the UPLN schema. Beyond defining tables, I learned to apply features such as partial unique indexes, role and column privileges, row-level security, `SECURITY DEFINER` functions and `pgcrypto` to specific library requirements. Running the scripts and inspecting the results was an important part of understanding the difference between a rule described in documentation and a rule actually enforced by the database.
 
-## Sources
+One design decision I can justify is the separation of a catalogue **title** from a physical **copy**. It allows branches to hold separate items under a shared catalogue record. I also chose to store operational availability in `copy.status` for direct access, while enforcing the one-active-loan rule with a partial unique index. This gave me a practical example of balancing normalisation, operational convenience and database-level integrity. The possible inconsistency between copy status and loan history is acknowledged and checked rather than ignored.
 
-- MIVA Open University (2025). *Advanced Database Systems*, Study Session One: Review of Traditional Relational Databases and Advanced Concepts (database design, keys, normalisation).
-- MIVA Open University (2025). *Advanced Database Systems*, Study Session Three (database security) and Study Session Six (data privacy): role-based access control, least privilege, encryption, data protection regulation.
+The strongest learning came from tests that did not initially behave as expected. In the audit implementation, a `SECURITY DEFINER` function recorded the function owner instead of the intended acting role. I investigated the execution context, corrected the role capture and confirmed the result in later tests. Similarly, the first restricted-role SQL injection demonstration generated a syntax error rather than proving a permissions boundary. Correcting that test reinforced the importance of checking **why** an operation was rejected, not just whether an error occurred. I also observed that failed insert attempts can consume sequence values even when the related transactions are rolled back.
+
+The work also made the limitations of laboratory controls clearer. A row-level security policy can correctly filter records while still relying on an application to supply a trustworthy user identity; selected-column encryption does not automatically provide TLS or full-disk encryption; and an audit log in the same database is not immune to a superuser. These boundaries helped me distinguish successful implementation tests from claims that would require further production-level validation.
+
+---
+
+## 10. Limitations and Future Development
+
+- **Dataset scale:** Portfolio 1 uses a deliberately small synthetic dataset to make relationships, constraint violations and security outcomes inspectable. Large-scale query-performance analysis is undertaken separately in Portfolio 2.
+- **Geographic and financial scope:** The model represents Nigerian branches and amounts in naira. Tax, foreign-currency processing and international circulation requirements are not implemented.
+- **Headquarters designation:** The partial unique index limits the number of headquarters to one but does not enforce the existence of a headquarters branch at all times.
+- **Copy location reconciliation:** A query checks current loan status against `copy.status`, but no end-to-end reconciliation of `copy.branch_id` against transfer and return history is demonstrated.
+- **Member identity assurance:** The RLS demonstration uses a session variable; trusted binding of that value to an authenticated member remains necessary for production.
+- **Reservation fulfilment:** Reservation order can be derived from `reserved_at`, but allocation of returned copies to queued reservations is not implemented as a complete workflow.
+- **Audit coverage:** The audit mechanism records data changes rather than all reads, and its protections remain subject to the database superuser's authority. Separate immutable storage and read auditing would strengthen the design.
+- **Production security:** The Portfolio 1 lab does not demonstrate TLS, full-disk encryption, managed key storage or automated event alerting. The hard-coded development password must not be reused beyond the disposable lab.
+- **Recovery:** Recovery and failover are outside the execution scope of this portfolio. Portfolio 5 addresses replication, TLS, point-in-time recovery and manual failover in a separate laboratory configuration.
+
+---
+
+## 11. References
+
+- MIVA Open University (2025). *Advanced Database Systems*, Study Session One: Review of Traditional Relational Databases and Advanced Concepts (database design, keys and normalisation).
+- MIVA Open University (2025). *Advanced Database Systems*, Study Session Three (database security) and Study Session Six (data privacy): role-based access control, least privilege, encryption and data protection regulation.
 - PostgreSQL Global Development Group. *PostgreSQL 16 Documentation: Privileges* and *Row Security Policies*. https://www.postgresql.org/docs/16/ddl-priv.html and https://www.postgresql.org/docs/16/ddl-rowsecurity.html
 - PostgreSQL Global Development Group. *PostgreSQL 16 Documentation: Partial Indexes*. https://www.postgresql.org/docs/16/indexes-partial.html
-- Federal Republic of Nigeria (2023). *Nigeria Data Protection Act, 2023.* Nigeria Data Protection Commission.
-- PostgreSQL Global Development Group. *PostgreSQL 16 Documentation: Password Authentication* (SCRAM), *The pg_hba.conf File*, *CREATE TRIGGER*, *CREATE FUNCTION* (SECURITY DEFINER) and *pgcrypto*. https://www.postgresql.org/docs/16/
-- OWASP Foundation. *SQL Injection Prevention Cheat Sheet.* https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html
+- Federal Republic of Nigeria (2023). *Nigeria Data Protection Act, 2023*. Nigeria Data Protection Commission.
+- PostgreSQL Global Development Group. *PostgreSQL 16 Documentation: Password Authentication* (SCRAM), *The pg_hba.conf File*, *CREATE TRIGGER*, *CREATE FUNCTION* (`SECURITY DEFINER`) and *pgcrypto*. https://www.postgresql.org/docs/16/
+- OWASP Foundation. *SQL Injection Prevention Cheat Sheet*. https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html
