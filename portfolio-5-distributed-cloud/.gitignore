@@ -1,0 +1,4 @@
+# secrets and generated files must never be committed
+.env.p5
+certs/
+results/

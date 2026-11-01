@@ -1,0 +1,121 @@
+# =====================================================================
+# UPLN | MIT 8103 | Portfolio 5 | a small distributed PostgreSQL cluster
+#   primary      the writer and the "coordinator" (port 5541; holds the P1 library data)
+#   replica      a hot standby that streams from the primary (port 5542)
+#   shard_north  loans of Abuja and Kano (port 5543)
+#   shard_south  loans of Lagos, Port Harcourt and Enugu (port 5544)
+# The four servers run on the host's own network (network_mode: host), each on
+# its own port, and every one listens on 127.0.0.1 ONLY (set in node_entry.sh),
+# so nothing is reachable from outside this machine.
+# (A private Docker network was tried first, but this Codespace blocked traffic
+#  between containers on it. See the README, "What went wrong on the way".)
+# =====================================================================
+x-pg: &pg
+  image: postgres:16
+  entrypoint: ["bash", "/node_entry.sh"]
+  env_file: .env.p5
+  restart: "no"
+  network_mode: host
+
+x-cmd: &cmd
+  - postgres
+  - -c
+  - config_file=/etc/p5/postgresql.p5.conf
+  - -c
+  - hba_file=/etc/p5/pg_hba.p5.conf
+  - -c
+  - ssl_cert_file=/var/lib/postgresql/tls/server.crt
+  - -c
+  - ssl_key_file=/var/lib/postgresql/tls/server.key
+  - -c
+  - ssl_ca_file=/var/lib/postgresql/tls/ca.crt
+  - -c
+  - archive_command=test ! -f /archive/%f && cp %p /archive/%f
+
+services:
+  primary:
+    <<: *pg
+    container_name: upln_p5_primary
+    command: *cmd
+    environment:
+      P5_ROLE: primary
+      PGPORT: "5541"
+      POSTGRES_USER: library_admin
+      POSTGRES_PASSWORD: ${ADMIN_PW}
+      POSTGRES_DB: upln
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --data-checksums"
+    volumes:
+      - p5_primary_data:/var/lib/postgresql/data
+      - p5_archive:/archive
+      - p5_backup:/backup
+      - ./docker/node_entry.sh:/node_entry.sh:ro
+      - ./docker/10_roles.sh:/docker-entrypoint-initdb.d/10_roles.sh:ro
+      - ./sql:/sql:ro
+      - ./conf:/etc/p5:ro
+      - ./certs:/certs:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -p 5541 -U library_admin -d upln"]
+      interval: 3s
+      timeout: 3s
+      retries: 60
+
+  replica:
+    <<: *pg
+    container_name: upln_p5_replica
+    command: *cmd
+    environment:
+      P5_ROLE: replica
+      PGPORT: "5542"
+      PRIMARY_PORT: "5541"
+    volumes:
+      - p5_replica_data:/var/lib/postgresql/data
+      - ./docker/node_entry.sh:/node_entry.sh:ro
+      - ./conf:/etc/p5:ro
+      - ./certs:/certs:ro
+    depends_on: { primary: { condition: service_healthy } }
+
+  shard_north:
+    <<: *pg
+    container_name: upln_p5_shard_north
+    command: *cmd
+    environment:
+      P5_ROLE: shard
+      PGPORT: "5543"
+      POSTGRES_USER: library_admin
+      POSTGRES_PASSWORD: ${ADMIN_PW}
+      POSTGRES_DB: shard
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --data-checksums"
+    volumes:
+      - p5_north_data:/var/lib/postgresql/data
+      - ./docker/node_entry.sh:/node_entry.sh:ro
+      - ./docker/10_roles.sh:/docker-entrypoint-initdb.d/10_roles.sh:ro
+      - ./sql:/sql:ro
+      - ./conf:/etc/p5:ro
+      - ./certs:/certs:ro
+
+  shard_south:
+    <<: *pg
+    container_name: upln_p5_shard_south
+    command: *cmd
+    environment:
+      P5_ROLE: shard
+      PGPORT: "5544"
+      POSTGRES_USER: library_admin
+      POSTGRES_PASSWORD: ${ADMIN_PW}
+      POSTGRES_DB: shard
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --data-checksums"
+    volumes:
+      - p5_south_data:/var/lib/postgresql/data
+      - ./docker/node_entry.sh:/node_entry.sh:ro
+      - ./docker/10_roles.sh:/docker-entrypoint-initdb.d/10_roles.sh:ro
+      - ./sql:/sql:ro
+      - ./conf:/etc/p5:ro
+      - ./certs:/certs:ro
+
+volumes:
+  p5_primary_data:
+  p5_replica_data:
+  p5_north_data:
+  p5_south_data:
+  p5_archive:
+  p5_backup:
