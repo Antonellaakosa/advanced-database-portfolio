@@ -134,6 +134,6 @@ This test extends the payment-integrity demonstration from Portfolio 1 to simult
 
 - PostgreSQL Global Development Group. *PostgreSQL 16 Documentation: Transaction Isolation*. https://www.postgresql.org/docs/16/transaction-iso.html
 - PostgreSQL Global Development Group. *PostgreSQL 16 Documentation: Explicit Locking*. https://www.postgresql.org/docs/16/explicit-locking.html
-- PostgreSQL Global Development Group. *PostgreSQL 16 Documentation: Multiversion Concurrency Control*. https://www.postgresql.org/docs/16/mvcc.html
-- PostgreSQL Global Development Group. *PostgreSQL 16 Documentation: Reliability and the Write-Ahead Log*. https://www.postgresql.org/docs/16/wal-intro.html
+- PostgreSQL Global Development Group. *PostgreSQL 16 Documentation: Concurrency Control*. https://www.postgresql.org/docs/16/mvcc.html
+- PostgreSQL Global Development Group. *PostgreSQL 16 Documentation: Write-Ahead Logging (WAL)*. https://www.postgresql.org/docs/16/wal-intro.html
 - MIVA Open University (n.d.). *MIT 8103 Advanced Database Systems, Live Lesson I: ACID properties in databases* [Lecture slides].
