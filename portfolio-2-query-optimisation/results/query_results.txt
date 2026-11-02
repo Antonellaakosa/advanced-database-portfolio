@@ -1,0 +1,256 @@
+
+##########  PART 1: the SQL and the rows each query returns  ##########
+
+=====================================================================
+Q1. Members by surname
+Front desk looks up a member by last name
+
+SQL (original form):
+SELECT member_id, first_name, last_name, email FROM member WHERE last_name = 'Okafor'
+
+First 5 rows returned:
+ member_id | first_name | last_name |           email           
+-----------+------------+-----------+---------------------------
+         1 | Adaeze     | Okafor    | adaeze.okafor@example.com
+       113 | Wale       | Okafor    | member105@example.com
+       199 | Hadiza     | Okafor    | member191@example.com
+       247 | Hauwa      | Okafor    | member239@example.com
+       276 | Blessing   | Okafor    | member268@example.com
+(5 rows)
+
+ total rows returned 
+---------------------
+                 777
+(1 row)
+
+
+=====================================================================
+Q2. A member's recent loan history
+The 10 most recent loans of member 1500 (joins loan, copy, title)
+
+SQL (original form):
+SELECT l.loan_id, t.title_name, l.loaned_at, l.returned_at
+       FROM loan l JOIN copy c ON c.copy_id = l.copy_id JOIN title t ON t.title_id = c.title_id
+       WHERE l.member_id = 1500 ORDER BY l.loaned_at DESC LIMIT 10
+
+First 5 rows returned:
+ loan_id |            title_name             |       loaned_at        |          returned_at          
+---------+-----------------------------------+------------------------+-------------------------------
+  999510 | The Modern Rhythm Guide #59399    | 2026-06-11 20:08:20+00 | 
+  952121 | The Young Language Guide #73484   | 2026-02-02 22:41:25+00 | 2026-02-24 12:14:10.251883+00
+  936087 | The Ancient Fortune Guide #81458  | 2025-12-21 08:01:35+00 | 2026-01-02 05:24:47.202856+00
+  915479 | The Complete Drummer Guide #14909 | 2025-10-26 06:46:55+00 | 2025-11-09 10:05:41.34239+00
+  905531 | The Bright Journey Notes #94939   | 2025-09-29 05:23:55+00 | 2025-09-30 01:02:58.229901+00
+(5 rows)
+
+ total rows returned 
+---------------------
+                  10
+(1 row)
+
+
+=====================================================================
+Q3. Overdue loans report
+The 100 oldest overdue loans still out
+
+SQL (original form):
+SELECT loan_id, member_id, due_at FROM loan
+       WHERE returned_at IS NULL AND due_at < now() ORDER BY due_at LIMIT 100
+
+First 5 rows returned:
+ loan_id | member_id |         due_at         
+---------+-----------+------------------------
+  998011 |         1 | 2026-06-21 18:17:15+00
+  998013 |         3 | 2026-06-21 18:25:05+00
+  998020 |        10 | 2026-06-21 18:52:30+00
+  998021 |        11 | 2026-06-21 18:56:25+00
+  998022 |        12 | 2026-06-21 19:00:20+00
+(5 rows)
+
+ total rows returned 
+---------------------
+                 100
+(1 row)
+
+
+=====================================================================
+Q4. Catalogue keyword search
+Find titles containing the word "database" anywhere in the name
+
+SQL (original form):
+SELECT title_id, title_name FROM title WHERE title_name ILIKE '%database%'
+
+First 5 rows returned:
+ title_id |            title_name             
+----------+-----------------------------------
+        6 | Database System Concepts
+        7 | Fundamentals of Database Systems
+       94 | The Rural Database Collection #84
+      156 | The Open Database Primer #146
+      315 | The Distant Database Essays #305
+(5 rows)
+
+ total rows returned 
+---------------------
+                1273
+(1 row)
+
+
+=====================================================================
+Q5. Available copies of a title
+Which copies of title 4242 can be borrowed right now, and where
+
+SQL (original form):
+SELECT copy_id, barcode, branch_id FROM copy WHERE title_id = 4242 AND status = 'available'
+
+First 5 rows returned:
+ copy_id |    barcode     | branch_id 
+---------+----------------+-----------
+   28450 | UPLN-B00028431 |         1
+   54132 | UPLN-B00054113 |         3
+   80503 | UPLN-B00080484 |         5
+(3 rows)
+
+ total rows returned 
+---------------------
+                   3
+(1 row)
+
+
+=====================================================================
+Q6. Loans per city per year
+Management report over all 1,000,000 loans
+
+SQL (original form):
+SELECT b.city, date_trunc('year', l.loaned_at) AS year, count(*) AS loans
+       FROM loan l JOIN branch b ON b.branch_id = l.checkout_branch_id
+       GROUP BY b.city, date_trunc('year', l.loaned_at) ORDER BY b.city, year
+
+SQL (optimised form, after the indexes and the materialised view):
+SELECT city, year, loans FROM mv_loans_by_city_year ORDER BY city, year
+
+First 5 rows returned:
+ city  |          year          | loans 
+-------+------------------------+-------
+ Abuja | 2019-01-01 00:00:00+00 | 26765
+ Abuja | 2020-01-01 00:00:00+00 | 27007
+ Abuja | 2021-01-01 00:00:00+00 | 26886
+ Abuja | 2022-01-01 00:00:00+00 | 27012
+ Abuja | 2023-01-01 00:00:00+00 | 27039
+(5 rows)
+
+ total rows returned 
+---------------------
+                  40
+(1 row)
+
+
+First 5 rows from the optimised form (the materialised view):
+ city  |          year          | loans 
+-------+------------------------+-------
+ Abuja | 2019-01-01 00:00:00+00 | 26765
+ Abuja | 2020-01-01 00:00:00+00 | 27007
+ Abuja | 2021-01-01 00:00:00+00 | 26886
+ Abuja | 2022-01-01 00:00:00+00 | 27012
+ Abuja | 2023-01-01 00:00:00+00 | 27039
+(5 rows)
+
+ total rows in the view 
+------------------------
+                     40
+(1 row)
+
+
+=====================================================================
+Q7. Loans in one month
+Count loans issued in January 2025 (date range)
+
+SQL (original form):
+SELECT count(*) FROM loan
+       WHERE loaned_at >= timestamptz '2025-01-01' AND loaned_at < timestamptz '2025-02-01'
+
+First 5 rows returned:
+ count 
+-------
+ 11397
+(1 row)
+
+ total rows returned 
+---------------------
+                   1
+(1 row)
+
+
+=====================================================================
+Q8. Titles by an author
+List the titles written by "Author 777" (joins author, title_author, title)
+
+SQL (original form):
+SELECT t.title_id, t.title_name
+       FROM author a JOIN title_author ta ON ta.author_id = a.author_id
+                     JOIN title t ON t.title_id = ta.title_id
+       WHERE a.full_name = 'Author 777'
+
+First 5 rows returned:
+ title_id |             title_name             
+----------+------------------------------------
+     8230 | The Quiet Journey Handbook #8220
+    10676 | The Brave Empire Collection #10666
+    40661 | The Rising Fortune Handbook #40651
+    53833 | The Last Forest Primer #53823
+    87488 | The Western Echo Primer #87478
+(5 rows)
+
+ total rows returned 
+---------------------
+                   6
+(1 row)
+
+
+=====================================================================
+Q9. Outstanding fines for a member
+What member 1500 still owes (joins loan, fine, payment)
+
+SQL (original form):
+SELECT f.fine_id, f.amount, COALESCE(SUM(p.amount), 0) AS paid,
+              f.amount - COALESCE(SUM(p.amount), 0) AS outstanding
+       FROM loan l JOIN fine f ON f.loan_id = l.loan_id
+                   LEFT JOIN payment p ON p.fine_id = f.fine_id
+       WHERE l.member_id = 1500 AND NOT f.waived
+       GROUP BY f.fine_id, f.amount
+       HAVING f.amount - COALESCE(SUM(p.amount), 0) > 0
+
+First 5 rows returned:
+ fine_id | amount | paid | outstanding 
+---------+--------+------+-------------
+  114476 |  75.00 |    0 |       75.00
+  124775 |  25.00 |    0 |       25.00
+(2 rows)
+
+ total rows returned 
+---------------------
+                   2
+(1 row)
+
+
+##########  PART 2: does the optimised version return the SAME rows?  ##########
+Each query is run (a) as it normally runs now, with the indexes, and (b) with the planner told to ignore every index,
+which is the original full-scan way. A fingerprint of all rows (ignoring order) is compared. For Q6 the summary
+view is also compared with the original aggregate query.
+
+ id |              name              | rows | same rows with and without indexes? | same rows from the optimised query? 
+----+--------------------------------+------+-------------------------------------+-------------------------------------
+  1 | Members by surname             |  777 | identical                           | -
+  2 | A member's recent loan history |   10 | identical                           | -
+  3 | Overdue loans report           |  100 | identical                           | -
+  4 | Catalogue keyword search       | 1273 | identical                           | -
+  5 | Available copies of a title    |    3 | identical                           | -
+  6 | Loans per city per year        |   40 | identical                           | identical
+  7 | Loans in one month             |    1 | identical                           | -
+  8 | Titles by an author            |    6 | identical                           | -
+  9 | Outstanding fines for a member |    2 | identical                           | -
+(9 rows)
+
+
+Note: Q3 shows the oldest overdue loans; if two loans are due at the exact same moment their order can differ,
+which would show here as DIFFERENT even though both answers are correct.
