@@ -1,157 +1,171 @@
 # Portfolio 5: Distributed and Cloud Databases
 
-**Course:** MIT 8103 Advanced Database Systems  **Case study:** Unity Public Library Network (UPLN), a fictional library network with branches in Abuja, Lagos, Port Harcourt, Kano and Enugu. All data is made up.
+**Course:** MIT 8103 Advanced Database Systems  
+**Case study:** Unity Public Library Network (UPLN), a fictional library network with branches in Abuja, Lagos, Port Harcourt, Kano and Enugu. All data is synthetic.
 
-## 1. What this portfolio does
+## 1. Objectives and Scope
 
-So far UPLN has lived on one database server. That is fine until the server breaks, the Lagos branch outgrows it, or someone steals a backup. This portfolio asks what changes when the library runs on **several servers**, and proves each answer by running it.
+In the earlier relational portfolios, I worked with a single PostgreSQL server. In this portfolio, I extended the UPLN case study to a four-server PostgreSQL 16 cluster to examine replication, availability, sharding, backup and recovery. I implemented and tested four areas:
 
-I built a small four-server cluster and tested four things:
+1. **Replication:** a standby server receiving and replaying changes from the primary.
+2. **Failover:** promoting the replica after stopping the primary and measuring when it accepted writes.
+3. **Sharding:** distributing loan history by branch, with Abuja and Kano on one shard and Lagos, Port Harcourt and Enugu on another.
+4. **Backup and recovery:** restoring data deleted by mistake to a chosen point in time.
 
-1. **Replication.** A second copy of the database that follows the first one.
-2. **Failover.** What happens when the main server dies, and how long the library is without a writer.
-3. **Sharding.** Splitting the loan history by branch, so Abuja and Kano live on one server and Lagos, Port Harcourt and Enugu on another.
-4. **Backup and recovery.** Getting back data that someone deleted by mistake, to an exact point in time.
+I also tested TLS connections, SCRAM-SHA-256 authentication, database permissions and the handling of passwords and certificates outside the repository.
 
-Security runs through all of it: every connection uses TLS, every account has only the rights it needs, and no password or key ever goes to GitHub.
+```text
+                         Application / reporting
+                                  |
+                             TLS + SCRAM
+                                  |
+                      +-----------v------------+
+                      | Primary / coordinator  |
+                      | Port 5541              |
+                      +------+-----------+-----+
+                             |           |
+                WAL over TLS |           | postgres_fdw (TLS)
+                             v           +--------------------+
+                      +-------------+         |                |
+                      | Replica     |         v                v
+                      | Port 5542   |   +--------------+  +---------------+
+                      | Read-only   |   | North shard  |  | South shard   |
+                      +-------------+   | Port 5543    |  | Port 5544     |
+                                        | ABJ, KAN     |  | LOS, PHC, ENU |
+                                        +--------------+  +---------------+
 
+                   Temporary PITR server: port 5545 (restore drill)
 ```
-                  +--------------------+      TLS + SCRAM password
-  application --> |  primary (writer)  | ------------------------------+
-  reporting   --> |  = coordinator     |                               |
-                  +---------+----------+                               |
-                            | streams WAL (TLS)                        |
-                  +---------v----------+      +------------------+  +--v---------------+
-                  | replica (read-only)|      |  shard_north     |  |  shard_south     |
-                  +--------------------+      |  ABJ, KAN loans  |  |  LOS, PHC, ENU   |
-                                              +------------------+  +------------------+
-```
 
-## 2. What is in this folder
+## 2. Implementation Files
 
-| File | What it does |
+| File | Purpose |
 |---|---|
-| `docker-compose.p5.yml`, `conf/`, `docker/`, `sql/` | The cluster itself: four PostgreSQL 16 containers, the connection rules (`pg_hba`), shared settings and account creation |
-| `00_make_certs.sh` | Creates a private certificate authority, a server certificate and random passwords (kept out of GitHub) |
-| `01_start_cluster.sh` | Builds and starts the cluster (`--reset` starts from nothing) |
-| `02_load_primary.sh` | Loads the Portfolio 1 schema and data and sets least-privilege rights |
-| `03_replication_tests.sh` | Replication, lag, read-only replica, synchronous commit |
-| `04_sharding.sh` | Loan history split by branch across two shards |
-| `05_security_checks.sh` | Tries to break the cluster and records what is refused |
-| `06_backup_pitr.sh` | Backup and point-in-time recovery drill |
-| `07_failover.sh` | Kills the primary, promotes the replica, shows split brain |
-| `08_run_all_tests.sh` | Runs everything from scratch and prints one summary |
-| `09_monitor.sh` | One-screen health report |
-| `evidence/` | My screenshots |
+| `docker-compose.p5.yml`, `conf/`, `docker/`, `sql/` | Define the four PostgreSQL 16 containers, `pg_hba` connection rules, shared settings and account creation |
+| `00_make_certs.sh` | Creates a private certificate authority, a server certificate and random passwords kept out of GitHub |
+| `01_start_cluster.sh` | Builds and starts the cluster; `--reset` starts from a clean state |
+| `02_load_primary.sh` | Loads the Portfolio 1 schema and data and assigns least-privilege permissions |
+| `03_replication_tests.sh` | Tests streaming replication, lag, read-only access and synchronous commit |
+| `04_sharding.sh` | Distributes loan history across two branch-based shards |
+| `05_security_checks.sh` | Tests connection security and permission restrictions |
+| `06_backup_pitr.sh` | Tests backup and point-in-time recovery (PITR) |
+| `07_failover.sh` | Stops the primary, promotes the replica and demonstrates split brain |
+| `08_run_all_tests.sh` | Runs the tests from a clean state and produces a summary |
+| `09_monitor.sh` | Reports cluster health on one screen |
+| `evidence/` | Contains my screenshots |
 
-## 3. How to run it
+## 3. Cluster Deployment and Test Execution
 
-From the repository root, with Docker running:
+With Docker running, I used the following command from the repository root:
 
 ```bash
 bash portfolio-5-distributed-cloud/08_run_all_tests.sh
 ```
 
-This builds the cluster, runs every test and prints one summary table. It takes about five minutes. To run the steps one at a time, use `01_start_cluster.sh --reset`, then `02` to `07` in order, and `09_monitor.sh` at any time. `07_failover.sh` changes the cluster (the replica becomes the primary), so run it last and use `--reset` before starting again.
+This script builds the cluster, runs the tests and prints a summary table. The full run takes about five minutes. I can also run the stages individually: `01_start_cluster.sh --reset`, followed by scripts `02` to `07` in order, with `09_monitor.sh` available for monitoring. I run `07_failover.sh` last because it promotes the replica and changes the cluster state. I use `--reset` before repeating the complete exercise.
 
-The four servers run on the machine's own network, one port each: primary 5541, replica 5542, north shard 5543, south shard 5544 (5545 is used briefly for the recovery drill). Each listens on `127.0.0.1` only, so nothing is reachable from outside the machine.
+All four PostgreSQL servers run on the same machine using separate ports: primary **5541**, replica **5542**, north shard **5543** and south shard **5544**. Port **5545** is used temporarily during the recovery drill. The servers listen on `127.0.0.1`, rather than on an externally accessible interface.
 
-**What went wrong on the way.** My first version put the four servers on a private Docker network. In my Codespace, Docker blocked traffic between containers on that network: the replica could not reach the primary and the shards could not reach each other, even though each server was healthy on its own. I confirmed this by testing connections between containers, then changed the setup so the servers use the host network with separate ports. A related slip earlier: connecting to `localhost` used the IPv6 address, which my `pg_hba` rules did not allow, so every script now connects to `127.0.0.1` explicitly.
+**Deployment problem and resolution.** I initially placed the four servers on a private Docker network. In my Codespace, traffic between containers on that network was blocked: the replica could not reach the primary, and the shards could not reach each other, although each server was running. I tested connectivity between containers, then changed the configuration to use the host network and separate ports. I also found that `localhost` resolved to an IPv6 address that my `pg_hba` rules did not permit. I therefore used `127.0.0.1` explicitly in the scripts.
 
-## 4. Design decisions
+## 4. Architecture and Design Decisions
 
-**Why PostgreSQL streaming replication?** The replica receives the primary's change log (WAL) over a TLS connection and replays it. It is a byte-for-byte copy, so it can take over without conversion. A named replication slot stops the primary deleting log the replica still needs.
+**Streaming replication.** I used PostgreSQL physical streaming replication. The standby receives the primary's write-ahead log (WAL) over TLS and replays it to maintain a physical copy of the database. I configured a named replication slot to retain WAL required by the standby. This arrangement lets the standby be promoted without converting the data to another database format, although asynchronous replication can lag behind the primary.
 
-**Why shard by branch?** Staff in Lagos mostly ask about Lagos. If the shard key is the branch, a branch query goes to one server and the rest are not touched (I check this in the query plan). A network-wide report has to ask both. I chose a list of branches rather than a hash because the library already thinks in branches, and it makes it easy to see which server holds what. The drawback is uneven load if one branch grows much faster than the others.
+**Branch-based sharding.** I used a list of branches as the shard key. Abuja and Kano share the north shard; Lagos, Port Harcourt and Enugu share the south shard. I chose this arrangement because a branch-specific loan query can target one shard, which I checked in the query plan, whereas a network-wide report must read both shards. List-based placement also makes each branch's location clear. The limitation is that the workload may become uneven if one branch grows faster than the others.
 
-**Why the primary is also the coordinator.** The primary holds the Portfolio 1 library data and a table called `branch_loan` that looks like one table but is made of two *foreign table* partitions (`postgres_fdw`), one per shard. That keeps the demonstration small. A bigger system would use a dedicated router.
+**Primary as coordinator.** I kept the Portfolio 1 library data on the primary and used it as the coordinator for `branch_loan`. This presents one logical table made from two foreign-table partitions through `postgres_fdw`, one on each shard. I used this arrangement to keep the lab small. A larger deployment could use a separate routing or coordination service.
 
-**Security choices**
+**Security configuration**
 
 | Choice | Reason |
 |---|---|
-| TLS for every connection, including replication and shard links | Passwords and data cross the network encrypted, and a connection without TLS is refused |
-| Own certificate authority; clients can use `verify-full` | They can tell they are talking to the real server |
-| SCRAM-SHA-256 passwords | No plain or MD5 passwords stored |
-| `replicator` can stream WAL but cannot open a normal SQL session | A stolen replication password does not give access to the tables |
-| `p5_app`: no DELETE, no access to the `member` table | The application only has what it needs |
-| `p5_report`: read-only | Reports cannot change data |
-| `fdw_user` on the shards: only the loan table, cannot create objects | The coordinator link cannot be abused to change the shard |
-| `pg_hba` allows only TLS + password connections from `127.0.0.1`, and the servers listen on `127.0.0.1` only | Everything else is rejected or cannot even reach the server |
-| Passwords and keys in `.env.p5` and `certs/`, both in `.gitignore`, mode 600 | Secrets never go to GitHub |
-| Data checksums on | Silent disk corruption is detected |
+| TLS for connections, including replication and shard links | Encrypts data and passwords in transit; connections without TLS are refused |
+| Private certificate authority; clients can use `verify-full` | Supports verification of the server identity |
+| SCRAM-SHA-256 passwords | Avoids storing plaintext or MD5 password hashes |
+| `replicator` can stream WAL but cannot open a normal SQL session | Restricts the replication account's access to database tables |
+| `p5_app`: no DELETE and no access to `member` | Limits the application's permissions |
+| `p5_report`: read-only | Prevents the reporting account from changing data |
+| `fdw_user` on the shards: loan-table access only; cannot create objects | Limits the coordinator's access on each shard |
+| `pg_hba` permits TLS and password connections from `127.0.0.1`; servers listen on `127.0.0.1` | Restricts connections to the permitted local interface and authentication method |
+| Passwords and keys in `.env.p5` and `certs/`, in `.gitignore`, with mode 600 | Keeps generated secrets out of the Git repository and restricts file access |
+| Data checksums enabled | Provides a means of detecting data-page corruption |
 
-## 5. What each test shows
+## 5. Test Methodology and Recorded Results
 
-Each script prints `PASS` or `FAIL` and saves them in `results/`. Together there are **62 checks**.
+The scripts print `PASS` or `FAIL` results and save their output in `results/`. My run recorded **62 checks** across the five test scripts.
 
-| Script | Checks | What it proves |
+| Script | Checks | Recorded verification |
 |---|---|---|
-| `03_replication_tests.sh` | 12 | The replica streams over TLS, shows data written on the primary within well under a second, refuses writes, and can serve reports. With synchronous commit on and the replica switched off, a commit on the primary **hangs** until cancelled |
-| `04_sharding.sh` | 12 | Each branch is on its own shard, the coordinator sees all 50,000 loans, a branch query touches one shard only, a cross-shard report matches the shard totals, an insert is routed to the right shard. With one shard down, the other branches still work and a network-wide report **fails** instead of giving a wrong total |
-| `05_security_checks.sh` | 20 | No-TLS refused on all four nodes, wrong password refused, no plain passwords, replication account cannot log in normally, application and report accounts limited, servers bound to 127.0.0.1, secrets not tracked by git |
-| `06_backup_pitr.sh` | 9 | A base backup is verified; after a deliberate `DELETE` with no `WHERE`, a separate server restored to a chosen second brings back all rows, including those written after the backup, and none from after the chosen time |
-| `07_failover.sh` | 9 | After killing the primary, the replica is writable again within a second or so (the number is in my screenshot). No committed row was lost in this run. The old primary, restarted, accepts writes of its own: that is **split brain** |
+| `03_replication_tests.sh` | 12 | I verified TLS streaming, replica visibility after a primary write, rejection of writes on the replica and reporting access. With synchronous commit enabled and the replica stopped, the primary's commit waited until I cancelled it |
+| `04_sharding.sh` | 12 | I verified that each branch is assigned to one of the two shards, that the coordinator returns **50,000 loans**, that branch queries reach one shard, that cross-shard reports match the shard totals and that inserts are routed correctly. With one shard down, the healthy branches remained accessible while a network-wide report failed rather than returning an incomplete total |
+| `05_security_checks.sh` | 20 | I tested refusal of non-TLS connections on all four nodes and incorrect passwords, SCRAM password storage, restrictions on the replication, application and reporting roles, loopback-only listening and exclusion of secrets from Git tracking |
+| `06_backup_pitr.sh` | 9 | I verified a base backup, performed a deliberate `DELETE` without `WHERE`, and restored to a selected time on a separate server. Rows committed after the backup but before the recovery point were restored; changes after that point were not included |
+| `07_failover.sh` | 9 | I stopped the primary, promoted the replica and measured when it accepted writes. No committed rows were lost in this run. I also restarted the old primary and confirmed that it accepted independent writes, demonstrating split brain |
 
-### Results from my run
+### 5.1 Results from My Run
 
-These come from my own runs in a GitHub Codespace on 1 November 2026 (screenshots in `evidence/`). All figures are for a small lab database on one machine, so real systems would be slower.
+I recorded these results in a GitHub Codespace on **1 November 2026**. They describe this single-machine laboratory exercise and are not production performance targets.
 
 | Measure | Result |
 |---|---|
-| Replica delay after a write | 376 ms until visible on the replica (this includes the cost of the check itself); 0 bytes behind once idle |
-| Commit with synchronous replication, replica up | 107 ms |
-| Commit with synchronous replication, replica down | Waited 3115 ms until I cancelled it (consistency chosen over availability) |
-| Cross-shard count | 50,000 loans |
-| Time for a restore (RTO) | 3.3 s (3.3 to 5.0 s across my runs) |
-| Time until the new primary accepted writes after the crash | 634 ms (script-measured) |
-| Rows lost in the failover | 0 of 200 (asynchronous replication does not guarantee this) |
-| Rows lost in the restore (RPO) | 0 up to the chosen recovery point |
+| Replica delay after a write | **376 ms** until visible on the replica (including the measurement check); **0 bytes** behind once idle |
+| Commit with synchronous replication, replica up | **107 ms** |
+| Commit with synchronous replication, replica down | Waited **3115 ms** until I cancelled it (consistency chosen over availability) |
+| Cross-shard count | **50,000 loans** |
+| Measured restore time (laboratory recovery drill, not a complete service RTO) | **3.3 s** (**3.3 to 5.0 s** across my runs) |
+| Time until the promoted replica accepted writes after the primary stopped | **634 ms** (script-measured) |
+| Rows lost in the failover | **0 of 200** (asynchronous replication does not guarantee this outcome) |
+| Rows lost in the restore | **0** up to the chosen recovery point (the observed PITR result, not a general zero-loss guarantee) |
 
-## 6. Distributed database discussion
+## 6. Distributed Database Discussion
 
-**Replication and consistency.** By default the replica is *asynchronous*: the primary tells the user "committed" before the replica has the change. That is fast, but if the primary dies at the wrong moment the last few commits can be lost. In this lab nothing was lost, but the system does not promise that. With *synchronous* commit the primary waits for the replica to confirm. I turned it on and then stopped the replica: the commit just waited. That is the trade-off in one experiment. Synchronous replication protects the data (consistency) and costs availability, because writes stop when the replica is unreachable.
+**Replication and consistency.** I compared asynchronous and synchronous replication. With asynchronous replication, the primary can confirm a commit before the standby has replayed its WAL. This avoids waiting for the replica but risks losing recent acknowledged writes if the primary fails before they reach it. My failover test lost no committed rows, but asynchronous replication does not guarantee that result. With synchronous commit, the primary waits for the required standby acknowledgement. When I stopped the replica, the commit waited for **3115 ms** until I cancelled it. This demonstrates the trade-off between protecting acknowledged writes and keeping writes available when the standby is unreachable.
 
-**CAP.** When the network splits, a system can keep answering (availability) or stay correct (consistency), not both. The same system behaves both ways in my tests: with a shard down, a Lagos query fails rather than guess (consistency), while an Abuja query keeps working (availability for the healthy part). For payments I would choose consistency. For a catalogue search (Portfolio 4) a slightly stale answer is acceptable.
+**CAP and shard availability.** CAP concerns consistency and availability *during a network partition*. My test stopped a shard; it did not simulate a separate network partition. In that test, a Lagos query depending on the unavailable shard failed rather than return an incomplete result, while an Abuja query served by the healthy shard continued. Network-wide reporting also failed rather than give a wrong total. The test therefore demonstrates partial availability during a shard outage, not a CAP partition experiment. For payments I would prioritise consistency; for the catalogue discussed in Portfolio 4, a slightly stale search result may be acceptable.
 
-**Availability.** A replica only helps if something promotes it. I did it by hand in a script. In production a tool such as Patroni, or a managed cloud service, detects the failure and does it, and prevents split brain by making sure the old primary cannot take writes. My test shows why that matters: the restarted old primary accepted its own writes, which the new primary never saw.
+**Failover and split brain.** A standby must be promoted before it can accept writes. I initiated promotion through `07_failover.sh` after stopping the primary; the promoted replica accepted writes after **634 ms**. This was script-controlled, not automatic failover. I then restarted the old primary and found that it accepted new writes independently. Those writes did not appear on the promoted server, so two writable copies could diverge: this is the **split-brain** condition demonstrated by my test. A production failover manager such as Patroni, or a managed cloud service, would need to prevent the former primary from taking writes until it is safely rebuilt or rejoined. I did not implement that protection here.
 
-**Sharding trade-offs.** Gains: more storage and load capacity, and a failure affects only part of the data. Costs: network-wide reports must ask every shard; a transaction across two shards is not atomic here (each shard commits separately), so cross-branch transfers would need two-phase commit or careful design; and moving a branch to another shard is real work. Loans are a good fit because a loan belongs to one branch. A member who borrows in two branches is where it gets awkward.
+**Sharding trade-offs.** I used two branch-based shards to distribute loan storage and branch-specific queries. A branch query can reach one shard; a network-wide report must query both. Separating the data also means a shard failure affects only some branch operations, while reports requiring all shards cannot complete. **Cross-shard transactions are not atomic** in this implementation: each shard commits separately, so a cross-branch operation could be partly committed. Two-phase commit or a carefully designed recovery process would be needed to handle that risk; I did not implement distributed atomic commits. Moving a branch between shards would require further work, and one branch growing faster than others could unbalance the workload. A member borrowing across branches adds another complication.
 
-**Backup and recovery.** A base backup plus the archived WAL lets me restore to a chosen second, not only to the moment of the backup. This is what protects against the accident that replication cannot: a replica faithfully copies a mistaken `DELETE` within a fraction of a second, so a replica is not a backup. My drill restored into a separate server and proved the rows were back before touching anything live. Recovery objectives: RPO is how much recent work you can afford to lose (here, nothing before the chosen second, as long as the WAL archive is intact), RTO is how long it takes to be back (measured in the table above, for a very small database; it grows with database size).
+**Backup and recovery.** Replication is not a substitute for backup: an accidental `DELETE` is replicated too. I tested recovery with a base backup and archived WAL, restoring onto a separate server to a chosen point before the deletion. The records were recovered without changing the running primary, and subsequent changes were excluded. RPO describes acceptable data loss; my result was **0 rows lost up to the selected recovery point**, provided the needed WAL was available, not a guarantee of zero loss after that point. RTO is the time required to restore service. My measured restore took **3.3 s** (**3.3 to 5.0 s** across runs), but this small lab measurement does not include failure detection, reconnection or application recovery and is not a complete production RTO. Actual recovery time depends on database size and deployment conditions.
 
-## 7. How this maps to a cloud deployment
+## 7. Cloud Deployment Considerations
 
-| Lab piece | In a cloud |
+I used the laboratory components to describe how the same design could be deployed in a cloud environment. The table is a proposed mapping, not a cloud deployment that I tested.
+
+| Laboratory component | Cloud equivalent or consideration |
 |---|---|
-| Servers bound to `127.0.0.1`, `pg_hba` rules | A private network (VPC) with private subnets; firewall rules (security groups) allowing only the application |
-| Primary + replica | Managed PostgreSQL with a standby in another availability zone (automatic failover) and read replicas |
-| WAL archive volume | Object storage with versioning, kept in a different region from the database |
-| Own CA and `.env.p5` | Certificates from a managed CA; passwords in a secrets manager, rotated; no secrets in code |
-| Passwords per role | Identity and access management for people; database roles for applications |
-| Two shards | Sharded or partitioned managed service, or application-level routing |
-| `09_monitor.sh` | Dashboards and alarms on replication lag, archive failures, connections, disk space and failed logins |
+| Servers bound to `127.0.0.1`, `pg_hba` rules | Private network (VPC), private subnets and security groups restricting application access |
+| Primary and replica | Managed PostgreSQL with a standby in another availability zone, automatic failover and read replicas |
+| WAL archive volume | Versioned object storage in a region separate from the database |
+| Private CA and `.env.p5` | Managed certificates and a secrets manager with password rotation; no credentials committed to source code |
+| Passwords assigned to database roles | Identity and access management for people and database roles for applications |
+| Two branch-based shards | Sharded or partitioned managed service, or application-level routing |
+| `09_monitor.sh` | Dashboards and alarms for replica lag, archive failures, connections, disk space and failed logins |
 
-**Encryption at rest.** I could not prove this in the lab, so I do not claim it. In a cloud it would be switched on for the disks and backups with managed keys, and Portfolio 1 already protects the most sensitive columns inside the database with `pgcrypto`. **Shared responsibility:** the provider secures the hardware and the platform; UPLN is still responsible for who has access, what is exposed, backups that actually restore, and the data itself. Because UPLN handles personal data of Nigerian members, the Nigeria Data Protection Act 2023 applies, which is a further reason for encryption, access control and knowing where backups are stored.
+**Encryption at rest.** I did not demonstrate disk or backup encryption in this lab. For a cloud deployment, I would require encryption of database volumes and backups using managed keys. Portfolio 1 separately demonstrated column-level protection using `pgcrypto`. Under a shared-responsibility model, the provider manages parts of the underlying platform, while the organisation remains responsible for access controls, data handling, backup verification and configuration. A real library processing Nigerian members' personal data would also need to consider the Nigeria Data Protection Act 2023 when designing access, encryption, retention and backup locations.
 
-## 8. Limitations
+## 8. Implementation Limitations
 
-- **One machine.** All four servers share one laptop or Codespace, so there is no real network delay or real hardware failure. Replica delay in production would be larger.
-- **Manual failover.** There is no automatic failover manager, and I did not script rebuilding the old primary as a replica (failback). The usual route is `pg_rewind`, or deleting its data and taking a fresh base backup from the new primary.
-- **Cross-shard transactions are not atomic**, as explained above.
-- **Self-made certificates.** Fine for a lab; a real deployment would use a proper CA. The same server certificate is used by all four nodes for simplicity.
-- **MongoDB** (Portfolio 4) runs as a single node. Replica sets and sharding exist there too and follow the same ideas, but I did not run them.
-- **Encryption at rest** is discussed, not demonstrated.
+- **Single-machine deployment.** All four servers ran on one laptop or Codespace, so I did not test separate hardware failures, availability zones or realistic network delay. The **376 ms** replica visibility measurement includes the check itself; production lag may differ.
+- **Manual failover and split brain.** I promoted the replica with `07_failover.sh`, without an automatic failover manager. I did not rebuild the old primary as a standby or test failback. Options include `pg_rewind` or replacing its data with a fresh base backup. Restarting the old primary showed why its ability to accept independent writes must be controlled.
+- **Cross-shard transactions are not atomic.** Each shard commits separately. I did not implement two-phase commit or another mechanism to commit changes across shards as one transaction; cross-branch workflows could therefore be left partially complete.
+- **Self-generated certificates.** I used a private CA and the same server certificate for all four nodes. This was suitable for the lab, but not the certificate-management arrangement I would choose for production.
+- **MongoDB.** Portfolio 4 runs MongoDB as a single node. I did not test MongoDB replica sets or sharding.
+- **Encryption at rest and recovery targets.** Disk and backup encryption were discussed, not demonstrated. The measured restore and failover timings are laboratory results, not validated production RTO or RPO objectives.
 
-## 9. Evidence
+## 9. Supporting Evidence
 
-Screenshots with the clock visible are in `evidence/`: `01_cluster_up`, `02_load_primary`, `03_replication`, `04_sharding`, `05_security`, `06_backup_pitr`, `07_failover`, `07_after_failover_monitor`, `08_all_tests` and `09_monitor`.
+I recorded ten screenshots with the clock visible in `evidence/`: `01_cluster_up`, `02_load_primary`, `03_replication`, `04_sharding`, `05_security`, `06_backup_pitr`, `07_failover`, `07_after_failover_monitor`, `08_all_tests` and `09_monitor`.
 
-## 10. AI-use note
+## 10. References
 
-I used Claude to help design and write the scripts and to explain the concepts. I ran everything myself on my own machine, and the numbers in this README come from my own screenshots. The full declaration is in the main README.
-
-## 11. References
-
-- PostgreSQL 16 documentation: [High Availability, Load Balancing and Replication](https://www.postgresql.org/docs/16/high-availability.html), [Continuous Archiving and PITR](https://www.postgresql.org/docs/16/continuous-archiving.html), [postgres_fdw](https://www.postgresql.org/docs/16/postgres-fdw.html), [SSL Support](https://www.postgresql.org/docs/16/ssl-tcp.html), [The pg_hba.conf File](https://www.postgresql.org/docs/16/auth-pg-hba-conf.html), [Table Partitioning](https://www.postgresql.org/docs/16/ddl-partitioning.html)
+- PostgreSQL Global Development Group. *PostgreSQL 16 Documentation: High Availability, Load Balancing, and Replication*. https://www.postgresql.org/docs/16/high-availability.html
+- PostgreSQL Global Development Group. *PostgreSQL 16 Documentation: Continuous Archiving and Point-in-Time Recovery (PITR)*. https://www.postgresql.org/docs/16/continuous-archiving.html
+- PostgreSQL Global Development Group. *PostgreSQL 16 Documentation: postgres_fdw*. https://www.postgresql.org/docs/16/postgres-fdw.html
+- PostgreSQL Global Development Group. *PostgreSQL 16 Documentation: Secure TCP/IP Connections with SSL*. https://www.postgresql.org/docs/16/ssl-tcp.html
+- PostgreSQL Global Development Group. *PostgreSQL 16 Documentation: The pg_hba.conf File*. https://www.postgresql.org/docs/16/auth-pg-hba-conf.html
+- PostgreSQL Global Development Group. *PostgreSQL 16 Documentation: Table Partitioning*. https://www.postgresql.org/docs/16/ddl-partitioning.html
 - Brewer, E. (2012). CAP twelve years later: How the "rules" have changed. *IEEE Computer*, 45(2), 23-29.
+- MIVA Open University (n.d.). *MIT 8103 Advanced Database Systems, Live Lesson I: Distributed databases and the CAP theorem* [Lecture slides].
