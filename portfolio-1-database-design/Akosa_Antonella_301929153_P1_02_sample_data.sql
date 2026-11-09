@@ -1,9 +1,9 @@
 -- =====================================================================
 -- Unity Public Library Network (UPLN)  |  MIT 8103  |  Portfolio 1
--- File    : 02_sample_data.sql
+-- File    : Akosa_Antonella_301929153_P1_02_sample_data.sql
 -- Purpose : Small, hand-written, internally consistent sample data.
--- Run     : psql -U library_admin -d upln -f 02_sample_data.sql
--- Requires: 01_schema.sql has just been run (IDs are assigned 1, 2, 3...
+-- Run     : psql -U library_admin -d upln -f Akosa_Antonella_301929153_P1_02_sample_data.sql
+-- Requires: Akosa_Antonella_301929153_P1_01_schema.sql has just been run (IDs are assigned 1, 2, 3...
 --           in the order of the INSERT statements below).
 -- Note    : All people, emails and ISBNs are SYNTHETIC. Emails use the
 --           reserved example.com domain. Author and title names are real

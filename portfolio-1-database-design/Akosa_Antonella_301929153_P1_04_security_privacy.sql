@@ -1,13 +1,13 @@
 -- =====================================================================
 -- Unity Public Library Network (UPLN)  |  MIT 8103  |  Portfolio 1 (extension)
--- File    : 04_security_privacy.sql
+-- File    : Akosa_Antonella_301929153_P1_04_security_privacy.sql
 -- Purpose : Access control and privacy protections:
 --             1. Roles with least privilege (who may do what)
 --             2. Column-level permissions (who may change which fields)
 --             3. Privacy-safe views (masking personal data)
 --             4. Row-level security (members see only their own records)
--- Run     : psql -U library_admin -d upln -f 04_security_privacy.sql
--- Requires: 01_schema.sql and 02_sample_data.sql have been run.
+-- Run     : psql -U library_admin -d upln -f Akosa_Antonella_301929153_P1_04_security_privacy.sql
+-- Requires: Akosa_Antonella_301929153_P1_01_schema.sql and Akosa_Antonella_301929153_P1_02_sample_data.sql have been run.
 -- Note    : Safe to re-run. Roles are created only if they do not exist, and
 --           permissions are re-applied each time.
 -- Note    : These are GROUP roles (NOLOGIN). No passwords appear in this file

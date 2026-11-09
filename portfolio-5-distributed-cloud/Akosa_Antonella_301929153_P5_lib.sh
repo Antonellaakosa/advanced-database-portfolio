@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # =====================================================================
 # UPLN | MIT 8103 | Portfolio 5
-# File    : lib.sh   (sourced by the other scripts; not run on its own)
+# File    : Akosa_Antonella_301929153_P5_lib.sh   (sourced by the other scripts; not run on its own)
 # Purpose : One place that knows how to reach each node, start/stop it,
 #           and print PASS/FAIL lines. Works with Docker (normal use).
 #           UPLN_P5_LOCAL=1 is a test hook that runs the same nodes as
@@ -27,7 +27,7 @@ CAFILE() { [ -n "$LOCAL" ] && echo "$HERE/certs/ca.crt" || echo /certs/ca.crt; }
 peer_host() { echo 127.0.0.1; }          # every node is on this machine's own network, each on its own port
 peer_port() { node_port "$1"; }
 
-dc() { docker compose -p upln_p5 -f "$HERE/docker-compose.p5.yml" --env-file "$ENVF" "$@"; }
+dc() { docker compose -p upln_p5 -f "$HERE/Akosa_Antonella_301929153_P5_docker-compose.p5.yml" --env-file "$ENVF" "$@"; }
 
 # np NODE USER [DB]  [psql args...]   : run SQL (from stdin or -c) on a node, over TCP with TLS
 #   env  PGSSLMODE (default require), PGPASSWORD_OVERRIDE (to test a wrong password)
@@ -66,7 +66,7 @@ wait_node() {   # node [seconds]
   until np "$n" library_admin "" -c "select 1" >/dev/null 2>&1; do i=$((i+1)); [ "$i" -ge "$t" ] && { echo "node $n did not come up"; return 1; }; sleep 1; done
 }
 local_args() {
-  echo "-c config_file=$HERE/conf/postgresql.p5.conf -c hba_file=$HERE/conf/pg_hba.p5.conf -c ssl_cert_file=$LROOT/tls/server.crt -c ssl_key_file=$LROOT/tls/server.key -c ssl_ca_file=$LROOT/tls/ca.crt -c listen_addresses=127.0.0.1 -c archive_command='test ! -f $LROOT/archive/%f && cp %p $LROOT/archive/%f'"
+  echo "-c config_file=$HERE/conf/Akosa_Antonella_301929153_P5_postgresql.p5.conf -c hba_file=$HERE/conf/Akosa_Antonella_301929153_P5_pg_hba.p5.conf -c ssl_cert_file=$LROOT/tls/server.crt -c ssl_key_file=$LROOT/tls/server.key -c ssl_ca_file=$LROOT/tls/ca.crt -c listen_addresses=127.0.0.1 -c archive_command='test ! -f $LROOT/archive/%f && cp %p $LROOT/archive/%f'"
 }
 
 # ---- reporting --------------------------------------------------------

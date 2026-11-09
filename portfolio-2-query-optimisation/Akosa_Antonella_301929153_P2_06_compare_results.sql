@@ -1,9 +1,9 @@
 -- =====================================================================
 -- Unity Public Library Network (UPLN)  |  MIT 8103  |  Portfolio 2
--- File    : 06_compare_results.sql
+-- File    : Akosa_Antonella_301929153_P2_06_compare_results.sql
 -- Purpose : Side-by-side before / after comparison.
--- Run     : psql -U library_admin -d upln_perf -f 06_compare_results.sql
--- Requires: 04_run_benchmark.sql has been run twice (label=before, label=after).
+-- Run     : psql -U library_admin -d upln_perf -f Akosa_Antonella_301929153_P2_06_compare_results.sql
+-- Requires: Akosa_Antonella_301929153_P2_04_run_benchmark.sql has been run twice (label=before, label=after).
 -- =====================================================================
 \pset format aligned
 

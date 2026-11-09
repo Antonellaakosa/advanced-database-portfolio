@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 # =====================================================================
 # UPLN | MIT 8103 | Portfolio 5
-# File    : 01_start_cluster.sh
+# File    : Akosa_Antonella_301929153_P5_01_start_cluster.sh
 # Purpose : Builds and starts the four-node lab cluster (primary, replica,
 #           shard_north, shard_south). Use --reset to throw everything away
 #           and start from nothing (needed before a clean full test run).
-# Run     : bash portfolio-5-distributed-cloud/01_start_cluster.sh [--reset]
+# Run     : bash portfolio-5-distributed-cloud/Akosa_Antonella_301929153_P5_01_start_cluster.sh [--reset]
 # =====================================================================
 set -u
-source "$(dirname "$0")/lib.sh"
-bash "$HERE/00_make_certs.sh" >/dev/null || exit 1
+source "$(dirname "$0")/Akosa_Antonella_301929153_P5_lib.sh"
+bash "$HERE/Akosa_Antonella_301929153_P5_00_make_certs.sh" >/dev/null || exit 1
 source "$ENVF"; export ADMIN_PW REPL_PW APP_PW REPORT_PW FDW_PW
 
 echo "== Starting the UPLN lab cluster =="

@@ -1,6 +1,6 @@
 // =====================================================================
 // Unity Public Library Network (UPLN) | MIT 8103 | Portfolio 4
-// File    : 13_media_formats.js
+// File    : Akosa_Antonella_301929153_P4_13_media_formats.js
 // Purpose : A library does not only lend books. This script adds one title of
 //           EACH format (book, e-book, audiobook, DVD, magazine), each carrying
 //           the fields only that format has, extends the validation rules to
@@ -8,7 +8,7 @@
 //           In PostgreSQL this would mean either many empty columns or one table
 //           per format; here each document simply carries what it needs.
 // =====================================================================
-load("lib.js");
+load("Akosa_Antonella_301929153_P4_lib.js");
 begin("13_media_formats");
 banner("13  Different media formats in one collection");
 

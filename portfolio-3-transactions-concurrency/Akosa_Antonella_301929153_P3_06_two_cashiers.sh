@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 # =====================================================================
 # Unity Public Library Network (UPLN) | MIT 8103 | Portfolio 3
-# File    : 06_two_cashiers.sh
+# File    : Akosa_Antonella_301929153_P3_06_two_cashiers.sh
 # Purpose : The "two cashiers" test promised in the Portfolio 1 README.
 #           Two cashiers take a payment on the SAME fine at the same moment.
 #   Part 1  A payment check with NO lock (test only)  -> the fine is overpaid
 #   Part 2  The real Portfolio 1 guard (locks the fine) -> the second payment is refused
-# Run     : bash portfolio-3-transactions-concurrency/06_two_cashiers.sh   (from the repo root)
-# Requires: 00_setup.sh
+# Run     : bash portfolio-3-transactions-concurrency/Akosa_Antonella_301929153_P3_06_two_cashiers.sh   (from the repo root)
+# Requires: Akosa_Antonella_301929153_P3_00_setup.sh
 # =====================================================================
 set -u
-source "$(dirname "$0")/lib.sh"
+source "$(dirname "$0")/Akosa_Antonella_301929153_P3_lib.sh"
 S=cashiers
 sql "DELETE FROM p3_results WHERE scenario='$S'" > /dev/null
 

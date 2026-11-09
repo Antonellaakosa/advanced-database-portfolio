@@ -5,14 +5,14 @@
 #   shard_north  loans of Abuja and Kano (port 5543)
 #   shard_south  loans of Lagos, Port Harcourt and Enugu (port 5544)
 # The four servers run on the host's own network (network_mode: host), each on
-# its own port, and every one listens on 127.0.0.1 ONLY (set in node_entry.sh),
+# its own port, and every one listens on 127.0.0.1 ONLY (set in Akosa_Antonella_301929153_P5_node_entry.sh),
 # so nothing is reachable from outside this machine.
 # (A private Docker network was tried first, but this Codespace blocked traffic
 #  between containers on it. See the README, "What went wrong on the way".)
 # =====================================================================
 x-pg: &pg
   image: postgres:16
-  entrypoint: ["bash", "/node_entry.sh"]
+  entrypoint: ["bash", "/Akosa_Antonella_301929153_P5_node_entry.sh"]
   env_file: .env.p5
   restart: "no"
   network_mode: host
@@ -20,9 +20,9 @@ x-pg: &pg
 x-cmd: &cmd
   - postgres
   - -c
-  - config_file=/etc/p5/postgresql.p5.conf
+  - config_file=/etc/p5/Akosa_Antonella_301929153_P5_postgresql.p5.conf
   - -c
-  - hba_file=/etc/p5/pg_hba.p5.conf
+  - hba_file=/etc/p5/Akosa_Antonella_301929153_P5_pg_hba.p5.conf
   - -c
   - ssl_cert_file=/var/lib/postgresql/tls/server.crt
   - -c
@@ -48,8 +48,8 @@ services:
       - p5_primary_data:/var/lib/postgresql/data
       - p5_archive:/archive
       - p5_backup:/backup
-      - ./docker/node_entry.sh:/node_entry.sh:ro
-      - ./docker/10_roles.sh:/docker-entrypoint-initdb.d/10_roles.sh:ro
+      - ./docker/Akosa_Antonella_301929153_P5_node_entry.sh:/Akosa_Antonella_301929153_P5_node_entry.sh:ro
+      - ./docker/Akosa_Antonella_301929153_P5_10_roles.sh:/docker-entrypoint-initdb.d/Akosa_Antonella_301929153_P5_10_roles.sh:ro
       - ./sql:/sql:ro
       - ./conf:/etc/p5:ro
       - ./certs:/certs:ro
@@ -69,7 +69,7 @@ services:
       PRIMARY_PORT: "5541"
     volumes:
       - p5_replica_data:/var/lib/postgresql/data
-      - ./docker/node_entry.sh:/node_entry.sh:ro
+      - ./docker/Akosa_Antonella_301929153_P5_node_entry.sh:/Akosa_Antonella_301929153_P5_node_entry.sh:ro
       - ./conf:/etc/p5:ro
       - ./certs:/certs:ro
     depends_on: { primary: { condition: service_healthy } }
@@ -87,8 +87,8 @@ services:
       POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --data-checksums"
     volumes:
       - p5_north_data:/var/lib/postgresql/data
-      - ./docker/node_entry.sh:/node_entry.sh:ro
-      - ./docker/10_roles.sh:/docker-entrypoint-initdb.d/10_roles.sh:ro
+      - ./docker/Akosa_Antonella_301929153_P5_node_entry.sh:/Akosa_Antonella_301929153_P5_node_entry.sh:ro
+      - ./docker/Akosa_Antonella_301929153_P5_10_roles.sh:/docker-entrypoint-initdb.d/Akosa_Antonella_301929153_P5_10_roles.sh:ro
       - ./sql:/sql:ro
       - ./conf:/etc/p5:ro
       - ./certs:/certs:ro
@@ -106,8 +106,8 @@ services:
       POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --data-checksums"
     volumes:
       - p5_south_data:/var/lib/postgresql/data
-      - ./docker/node_entry.sh:/node_entry.sh:ro
-      - ./docker/10_roles.sh:/docker-entrypoint-initdb.d/10_roles.sh:ro
+      - ./docker/Akosa_Antonella_301929153_P5_node_entry.sh:/Akosa_Antonella_301929153_P5_node_entry.sh:ro
+      - ./docker/Akosa_Antonella_301929153_P5_10_roles.sh:/docker-entrypoint-initdb.d/Akosa_Antonella_301929153_P5_10_roles.sh:ro
       - ./sql:/sql:ro
       - ./conf:/etc/p5:ro
       - ./certs:/certs:ro

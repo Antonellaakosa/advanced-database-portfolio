@@ -1,12 +1,12 @@
 -- =====================================================================
 -- Unity Public Library Network (UPLN)  |  MIT 8103  |  Portfolio 1 (integrity)
--- File    : 08_payment_guard.sql
+-- File    : Akosa_Antonella_301929153_P1_08_payment_guard.sql
 -- Purpose : Protects MONEY. A payment can never be larger than what is
 --           still owed on the fine, and a waived fine cannot be paid.
 --           Two cashiers paying the same fine at once cannot both succeed
 --           (the fine row is locked while the check runs).
--- Run     : psql -U library_admin -d upln -v ON_ERROR_STOP=1 -f 08_payment_guard.sql
--- Requires: 01_schema.sql .. 06_audit_log.sql
+-- Run     : psql -U library_admin -d upln -v ON_ERROR_STOP=1 -f Akosa_Antonella_301929153_P1_08_payment_guard.sql
+-- Requires: Akosa_Antonella_301929153_P1_01_schema.sql .. Akosa_Antonella_301929153_P1_06_audit_log.sql
 -- =====================================================================
 SET client_min_messages = warning;
 

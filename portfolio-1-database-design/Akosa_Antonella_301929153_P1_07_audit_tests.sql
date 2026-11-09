@@ -1,12 +1,12 @@
 -- =====================================================================
 -- Unity Public Library Network (UPLN)  |  MIT 8103  |  Portfolio 1 (security)
--- File    : 07_audit_tests.sql
+-- File    : Akosa_Antonella_301929153_P1_07_audit_tests.sql
 -- Purpose : Proves that (a) changes are logged with the right facts,
 --           (b) personal data is redacted in the log, (c) nobody can alter
 --           or forge the log, and (d) only authorised roles can read it.
 --           Everything runs in one transaction that is ROLLED BACK at the
 --           end, so your data and your audit log are left untouched.
--- Run     : psql -U library_admin -d upln -f 07_audit_tests.sql
+-- Run     : psql -U library_admin -d upln -f Akosa_Antonella_301929153_P1_07_audit_tests.sql
 -- Requires: 01 .. 06 (and 08 if you want the payment guard active)
 -- =====================================================================
 \pset format aligned

@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
 # =====================================================================
 # UPLN | MIT 8103 | Portfolio 5
-# File    : 07_failover.sh
+# File    : Akosa_Antonella_301929153_P5_07_failover.sh
 # Purpose : High availability drill. The primary is killed without warning,
 #           the replica is promoted, and we measure how long that takes (RTO)
 #           and whether any committed work was lost (RPO). Then we show the
 #           danger of "split brain" (two servers that both think they are
 #           the primary) and fence the old one.
 # NOTE    : This script changes the cluster (the replica becomes the primary).
-#           Rebuild afterwards with:  bash 01_start_cluster.sh --reset
-# Run     : bash portfolio-5-distributed-cloud/07_failover.sh
+#           Rebuild afterwards with:  bash Akosa_Antonella_301929153_P5_01_start_cluster.sh --reset
+# Run     : bash portfolio-5-distributed-cloud/Akosa_Antonella_301929153_P5_07_failover.sh
 # =====================================================================
 set -u
-source "$(dirname "$0")/lib.sh"
+source "$(dirname "$0")/Akosa_Antonella_301929153_P5_lib.sh"
 begin_scenario "07_failover"
 echo "== Failover drill =="
 

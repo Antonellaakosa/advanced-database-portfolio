@@ -1,11 +1,11 @@
 // =====================================================================
 // Unity Public Library Network (UPLN) | MIT 8103 | Portfolio 4
-// File    : 03_load_migrated.js
-// Purpose : Loads the 10 titles exported from PostgreSQL (data/migrated_titles.js)
+// File    : Akosa_Antonella_301929153_P4_03_load_migrated.js
+// Purpose : Loads the 10 titles exported from PostgreSQL (data/Akosa_Antonella_301929153_P4_migrated_titles.js)
 //           into MongoDB. The validation rules from step 02 apply to every one.
 // =====================================================================
-load("lib.js");
-load("data/migrated_titles.js");          // defines migratedTitles
+load("Akosa_Antonella_301929153_P4_lib.js");
+load("data/Akosa_Antonella_301929153_P4_migrated_titles.js");          // defines migratedTitles
 begin("03_migration");
 banner("03  Load the titles migrated from PostgreSQL");
 

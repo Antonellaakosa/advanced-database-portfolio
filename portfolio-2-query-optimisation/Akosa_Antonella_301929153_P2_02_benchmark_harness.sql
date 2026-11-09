@@ -1,10 +1,10 @@
 -- =====================================================================
 -- Unity Public Library Network (UPLN)  |  MIT 8103  |  Portfolio 2
--- File    : 02_benchmark_harness.sql
+-- File    : Akosa_Antonella_301929153_P2_02_benchmark_harness.sql
 -- Purpose : Defines the 9 workload queries and a function that measures them.
 --           The SAME harness is used before and after optimisation, so the
 --           comparison is fair.
--- Run     : psql -U library_admin -d upln_perf -v ON_ERROR_STOP=1 -f 02_benchmark_harness.sql
+-- Run     : psql -U library_admin -d upln_perf -v ON_ERROR_STOP=1 -f Akosa_Antonella_301929153_P2_02_benchmark_harness.sql
 -- Method  : For every query, bench_run() does one warm-up run (to fill the
 --           cache), then 5 timed runs with EXPLAIN (ANALYZE, BUFFERS), and
 --           stores the MEDIAN execution time, the plan's scan and join types,

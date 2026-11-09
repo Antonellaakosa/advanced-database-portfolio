@@ -1,13 +1,13 @@
 -- =====================================================================
 -- Unity Public Library Network (UPLN)  |  MIT 8103  |  Portfolio 2
--- File    : 08_query_results.sql
+-- File    : Akosa_Antonella_301929153_P2_08_query_results.sql
 -- Purpose : Shows WHAT each of the nine benchmark queries returns, not just how
 --           fast it runs: the SQL, the first rows of the result, and the total
 --           number of rows. Then it checks that the optimised version of every
 --           query returns exactly the same rows as the original.
--- Run     : after 05_create_indexes.sql (the indexes must exist), with
---           psql -U library_admin -d upln_perf -f 08_query_results.sql
---           Tip: add  > results/query_results.txt  to save the output.
+-- Run     : after Akosa_Antonella_301929153_P2_05_create_indexes.sql (the indexes must exist), with
+--           psql -U library_admin -d upln_perf -f Akosa_Antonella_301929153_P2_08_query_results.sql
+--           Tip: add  > results/Akosa_Antonella_301929153_P2_query_results.txt  to save the output.
 -- Time    : well under a minute.
 -- Changes nothing: it only reads data and sets planner options for one query at a time.
 -- =====================================================================

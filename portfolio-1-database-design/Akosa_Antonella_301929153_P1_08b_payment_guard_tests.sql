@@ -1,7 +1,7 @@
 -- =====================================================================
--- File    : 08b_payment_guard_tests.sql
+-- File    : Akosa_Antonella_301929153_P1_08b_payment_guard_tests.sql
 -- Purpose : Proves the payment guard works. Nothing is kept (ROLLBACK).
--- Run     : psql -U library_admin -d upln -f 08b_payment_guard_tests.sql
+-- Run     : psql -U library_admin -d upln -f Akosa_Antonella_301929153_P1_08b_payment_guard_tests.sql
 -- =====================================================================
 \pset format aligned
 \pset border 2

@@ -1,10 +1,10 @@
 // =====================================================================
 // Unity Public Library Network (UPLN) | MIT 8103 | Portfolio 4
-// File    : 08_modelling_patterns.js
+// File    : Akosa_Antonella_301929153_P4_08_modelling_patterns.js
 // Purpose : Three design decisions, each shown with a working example:
 //           (1) embed vs reference, (2) computed pattern, (3) subset pattern.
 // =====================================================================
-load("lib.js");
+load("Akosa_Antonella_301929153_P4_lib.js");
 begin("08_patterns");
 banner("08  Modelling patterns: embed, reference, computed, subset");
 

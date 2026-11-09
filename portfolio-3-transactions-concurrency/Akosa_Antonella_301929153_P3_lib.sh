@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # =====================================================================
 # Unity Public Library Network (UPLN) | MIT 8103 | Portfolio 3
-# File    : lib.sh   (sourced by the other scripts; not run on its own)
+# File    : Akosa_Antonella_301929153_P3_lib.sh   (sourced by the other scripts; not run on its own)
 # Purpose : Runs psql the same way everywhere, and lets two or three
 #           database sessions run AT THE SAME TIME with a time-stamped
 #           timeline, so concurrency can be seen rather than imagined.
@@ -16,7 +16,7 @@ psqlx() {
   if [ -n "${UPLN_PSQL_LOCAL:-}" ]; then          # test hook: a server outside Docker
     psql -X -q -h /tmp -p "$UPLN_PSQL_LOCAL" -U postgres -d "${P3_CONN_DB:-$DB}" -At -v VERBOSITY=terse "$@"
   else
-    (cd "$ROOT" && docker compose exec -T postgres psql -X -q -U library_admin -d "${P3_CONN_DB:-$DB}" -At -v VERBOSITY=terse "$@")
+    (cd "$ROOT" && docker compose -f Akosa_Antonella_301929153_docker-compose.yml exec -T postgres psql -X -q -U library_admin -d "${P3_CONN_DB:-$DB}" -At -v VERBOSITY=terse "$@")
   fi
 }
 

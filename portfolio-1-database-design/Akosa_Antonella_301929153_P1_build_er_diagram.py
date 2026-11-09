@@ -5,10 +5,10 @@ Builds the ER diagram directly from the live PostgreSQL schema, so the
 picture can never disagree with the database.
 
 Usage (needs Graphviz: sudo apt-get install -y graphviz):
-    python3 build_er_diagram.py
+    python3 Akosa_Antonella_301929153_P1_build_er_diagram.py
 Environment variables PGHOST, PGPORT, PGUSER, PGDATABASE, PGPASSWORD are
 read by psql in the usual way.
-Output: er_diagram.dot, er_diagram.png, er_diagram.svg
+Output: Akosa_Antonella_301929153_P1_er_diagram.dot, Akosa_Antonella_301929153_P1_er_diagram.png, Akosa_Antonella_301929153_P1_er_diagram.svg
 """
 import subprocess
 import sys
@@ -83,11 +83,11 @@ for child, col, parent in sorted(set(FKS)):
     lines.append(f'  {parent} -> {child} [tooltip="{child}.{col} references {parent}"];')
 lines.append("}")
 
-with open("er_diagram.dot", "w") as handle:
+with open("Akosa_Antonella_301929153_P1_er_diagram.dot", "w") as handle:
     handle.write("\n".join(lines))
 
 for fmt in ("png", "svg"):
-    cmd = ["dot", f"-T{fmt}", "-Gdpi=150", "er_diagram.dot", "-o", f"er_diagram.{fmt}"]
+    cmd = ["dot", f"-T{fmt}", "-Gdpi=150", "Akosa_Antonella_301929153_P1_er_diagram.dot", "-o", f"Akosa_Antonella_301929153_P1_er_diagram.{fmt}"]
     if subprocess.run(cmd).returncode != 0:
         sys.exit("Graphviz 'dot' failed. Is Graphviz installed?")
-print(f"Wrote er_diagram.dot / .png / .svg  ({len(tables)} tables, {len(set(FKS))} foreign-key links)")
+print(f"Wrote Akosa_Antonella_301929153_P1_er_diagram.dot / .png / .svg  ({len(tables)} tables, {len(set(FKS))} foreign-key links)")

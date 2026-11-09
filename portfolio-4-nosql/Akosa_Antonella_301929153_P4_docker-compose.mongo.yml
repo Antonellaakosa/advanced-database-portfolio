@@ -2,8 +2,8 @@
 # Unity Public Library Network (UPLN) | MIT 8103 | Portfolio 4
 # MongoDB for the catalogue. A separate file, so the PostgreSQL setup from
 # Portfolio 1 is not changed in any way.
-#   start : docker compose -f portfolio-4-nosql/docker-compose.mongo.yml up -d
-#   stop  : docker compose -f portfolio-4-nosql/docker-compose.mongo.yml down
+#   start : docker compose -f portfolio-4-nosql/Akosa_Antonella_301929153_P4_docker-compose.mongo.yml up -d
+#   stop  : docker compose -f portfolio-4-nosql/Akosa_Antonella_301929153_P4_docker-compose.mongo.yml down
 # The folder is mounted read-only at /p4 so mongosh can run the scripts in it.
 # Lab setup: no login and reachable only from this machine (127.0.0.1).
 # See README section "What I would change for production".

@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 # =====================================================================
 # Unity Public Library Network (UPLN) | MIT 8103 | Portfolio 3
-# File    : 03_double_borrow_race.sh
+# File    : Akosa_Antonella_301929153_P3_03_double_borrow_race.sh
 # Purpose : Two librarians try to lend the SAME copy at the SAME moment.
 #   Part 1  Naive code (check, then write) with the Portfolio 1 rule in place
 #   Part 2  The same naive code with that rule removed (test database only)
 #   Part 3  The safe version: lock the copy first
-# Run     : bash portfolio-3-transactions-concurrency/03_double_borrow_race.sh   (from the repo root)
-# Requires: 00_setup.sh
+# Run     : bash portfolio-3-transactions-concurrency/Akosa_Antonella_301929153_P3_03_double_borrow_race.sh   (from the repo root)
+# Requires: Akosa_Antonella_301929153_P3_00_setup.sh
 # =====================================================================
 set -u
-source "$(dirname "$0")/lib.sh"
+source "$(dirname "$0")/Akosa_Antonella_301929153_P3_lib.sh"
 S=race
 sql "DELETE FROM p3_results WHERE scenario='$S'" > /dev/null
 

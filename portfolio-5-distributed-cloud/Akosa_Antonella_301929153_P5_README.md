@@ -41,17 +41,17 @@ I also tested TLS connections, SCRAM-SHA-256 authentication, database permission
 
 | File | Purpose |
 |---|---|
-| `docker-compose.p5.yml`, `conf/`, `docker/`, `sql/` | Define the four PostgreSQL 16 containers, `pg_hba` connection rules, shared settings and account creation |
-| `00_make_certs.sh` | Creates a private certificate authority, a server certificate and random passwords kept out of GitHub |
-| `01_start_cluster.sh` | Builds and starts the cluster; `--reset` starts from a clean state |
-| `02_load_primary.sh` | Loads the Portfolio 1 schema and data and assigns least-privilege permissions |
-| `03_replication_tests.sh` | Tests streaming replication, lag, read-only access and synchronous commit |
-| `04_sharding.sh` | Distributes loan history across two branch-based shards |
-| `05_security_checks.sh` | Tests connection security and permission restrictions |
-| `06_backup_pitr.sh` | Tests backup and point-in-time recovery (PITR) |
-| `07_failover.sh` | Stops the primary, promotes the replica and demonstrates split brain |
-| `08_run_all_tests.sh` | Runs the tests from a clean state and produces a summary |
-| `09_monitor.sh` | Reports cluster health on one screen |
+| `Akosa_Antonella_301929153_P5_docker-compose.p5.yml`, `conf/`, `docker/`, `sql/` | Define the four PostgreSQL 16 containers, `pg_hba` connection rules, shared settings and account creation |
+| `Akosa_Antonella_301929153_P5_00_make_certs.sh` | Creates a private certificate authority, a server certificate and random passwords kept out of GitHub |
+| `Akosa_Antonella_301929153_P5_01_start_cluster.sh` | Builds and starts the cluster; `--reset` starts from a clean state |
+| `Akosa_Antonella_301929153_P5_02_load_primary.sh` | Loads the Portfolio 1 schema and data and assigns least-privilege permissions |
+| `Akosa_Antonella_301929153_P5_03_replication_tests.sh` | Tests streaming replication, lag, read-only access and synchronous commit |
+| `Akosa_Antonella_301929153_P5_04_sharding.sh` | Distributes loan history across two branch-based shards |
+| `Akosa_Antonella_301929153_P5_05_security_checks.sh` | Tests connection security and permission restrictions |
+| `Akosa_Antonella_301929153_P5_06_backup_pitr.sh` | Tests backup and point-in-time recovery (PITR) |
+| `Akosa_Antonella_301929153_P5_07_failover.sh` | Stops the primary, promotes the replica and demonstrates split brain |
+| `Akosa_Antonella_301929153_P5_08_run_all_tests.sh` | Runs the tests from a clean state and produces a summary |
+| `Akosa_Antonella_301929153_P5_09_monitor.sh` | Reports cluster health on one screen |
 | `evidence/` | Contains my screenshots |
 
 ## 3. Cluster Deployment and Test Execution
@@ -59,10 +59,10 @@ I also tested TLS connections, SCRAM-SHA-256 authentication, database permission
 With Docker running, I used the following command from the repository root:
 
 ```bash
-bash portfolio-5-distributed-cloud/08_run_all_tests.sh
+bash portfolio-5-distributed-cloud/Akosa_Antonella_301929153_P5_08_run_all_tests.sh
 ```
 
-This script builds the cluster, runs the tests and prints a summary table. The full run takes about five minutes. I can also run the stages individually: `01_start_cluster.sh --reset`, followed by scripts `02` to `07` in order, with `09_monitor.sh` available for monitoring. I run `07_failover.sh` last because it promotes the replica and changes the cluster state. I use `--reset` before repeating the complete exercise.
+This script builds the cluster, runs the tests and prints a summary table. The full run takes about five minutes. I can also run the stages individually: `Akosa_Antonella_301929153_P5_01_start_cluster.sh --reset`, followed by scripts `02` to `07` in order, with `Akosa_Antonella_301929153_P5_09_monitor.sh` available for monitoring. I run `Akosa_Antonella_301929153_P5_07_failover.sh` last because it promotes the replica and changes the cluster state. I use `--reset` before repeating the complete exercise.
 
 All four PostgreSQL servers run on the same machine using separate ports: primary **5541**, replica **5542**, north shard **5543** and south shard **5544**. Port **5545** is used temporarily during the recovery drill. The servers listen on `127.0.0.1`, rather than on an externally accessible interface.
 
@@ -97,11 +97,11 @@ The scripts print `PASS` or `FAIL` results and save their output in `results/`. 
 
 | Script | Checks | Recorded verification |
 |---|---|---|
-| `03_replication_tests.sh` | 12 | I verified TLS streaming, replica visibility after a primary write, rejection of writes on the replica and reporting access. With synchronous commit enabled and the replica stopped, the primary's commit waited until I cancelled it |
-| `04_sharding.sh` | 12 | I verified that each branch is assigned to one of the two shards, that the coordinator returns **50,000 loans**, that branch queries reach one shard, that cross-shard reports match the shard totals and that inserts are routed correctly. With one shard down, the healthy branches remained accessible while a network-wide report failed rather than returning an incomplete total |
-| `05_security_checks.sh` | 20 | I tested refusal of non-TLS connections on all four nodes and incorrect passwords, SCRAM password storage, restrictions on the replication, application and reporting roles, loopback-only listening and exclusion of secrets from Git tracking |
-| `06_backup_pitr.sh` | 9 | I verified a base backup, performed a deliberate `DELETE` without `WHERE`, and restored to a selected time on a separate server. Rows committed after the backup but before the recovery point were restored; changes after that point were not included |
-| `07_failover.sh` | 9 | I stopped the primary, promoted the replica and measured when it accepted writes. No committed rows were lost in this run. I also restarted the old primary and confirmed that it accepted independent writes, demonstrating split brain |
+| `Akosa_Antonella_301929153_P5_03_replication_tests.sh` | 12 | I verified TLS streaming, replica visibility after a primary write, rejection of writes on the replica and reporting access. With synchronous commit enabled and the replica stopped, the primary's commit waited until I cancelled it |
+| `Akosa_Antonella_301929153_P5_04_sharding.sh` | 12 | I verified that each branch is assigned to one of the two shards, that the coordinator returns **50,000 loans**, that branch queries reach one shard, that cross-shard reports match the shard totals and that inserts are routed correctly. With one shard down, the healthy branches remained accessible while a network-wide report failed rather than returning an incomplete total |
+| `Akosa_Antonella_301929153_P5_05_security_checks.sh` | 20 | I tested refusal of non-TLS connections on all four nodes and incorrect passwords, SCRAM password storage, restrictions on the replication, application and reporting roles, loopback-only listening and exclusion of secrets from Git tracking |
+| `Akosa_Antonella_301929153_P5_06_backup_pitr.sh` | 9 | I verified a base backup, performed a deliberate `DELETE` without `WHERE`, and restored to a selected time on a separate server. Rows committed after the backup but before the recovery point were restored; changes after that point were not included |
+| `Akosa_Antonella_301929153_P5_07_failover.sh` | 9 | I stopped the primary, promoted the replica and measured when it accepted writes. No committed rows were lost in this run. I also restarted the old primary and confirmed that it accepted independent writes, demonstrating split brain |
 
 ### 5.1 Results from My Run
 
@@ -124,7 +124,7 @@ I recorded these results in a GitHub Codespace on **1 November 2026**. They desc
 
 **CAP and shard availability.** CAP concerns consistency and availability *during a network partition*. My test stopped a shard; it did not simulate a separate network partition. In that test, a Lagos query depending on the unavailable shard failed rather than return an incomplete result, while an Abuja query served by the healthy shard continued. Network-wide reporting also failed rather than give a wrong total. The test therefore demonstrates partial availability during a shard outage, not a CAP partition experiment. For payments I would prioritise consistency; for the catalogue discussed in Portfolio 4, a slightly stale search result may be acceptable.
 
-**Failover and split brain.** A standby must be promoted before it can accept writes. I initiated promotion through `07_failover.sh` after stopping the primary; the promoted replica accepted writes after **634 ms**. This was script-controlled, not automatic failover. I then restarted the old primary and found that it accepted new writes independently. Those writes did not appear on the promoted server, so two writable copies could diverge: this is the **split-brain** condition demonstrated by my test. A production failover manager such as Patroni, or a managed cloud service, would need to prevent the former primary from taking writes until it is safely rebuilt or rejoined. I did not implement that protection here.
+**Failover and split brain.** A standby must be promoted before it can accept writes. I initiated promotion through `Akosa_Antonella_301929153_P5_07_failover.sh` after stopping the primary; the promoted replica accepted writes after **634 ms**. This was script-controlled, not automatic failover. I then restarted the old primary and found that it accepted new writes independently. Those writes did not appear on the promoted server, so two writable copies could diverge: this is the **split-brain** condition demonstrated by my test. A production failover manager such as Patroni, or a managed cloud service, would need to prevent the former primary from taking writes until it is safely rebuilt or rejoined. I did not implement that protection here.
 
 **Sharding trade-offs.** I used two branch-based shards to distribute loan storage and branch-specific queries. A branch query can reach one shard; a network-wide report must query both. Separating the data also means a shard failure affects only some branch operations, while reports requiring all shards cannot complete. **Cross-shard transactions are not atomic** in this implementation: each shard commits separately, so a cross-branch operation could be partly committed. Two-phase commit or a carefully designed recovery process would be needed to handle that risk; I did not implement distributed atomic commits. Moving a branch between shards would require further work, and one branch growing faster than others could unbalance the workload. A member borrowing across branches adds another complication.
 
@@ -142,14 +142,14 @@ I used the laboratory components to describe how the same design could be deploy
 | Private CA and `.env.p5` | Managed certificates and a secrets manager with password rotation; no credentials committed to source code |
 | Passwords assigned to database roles | Identity and access management for people and database roles for applications |
 | Two branch-based shards | Sharded or partitioned managed service, or application-level routing |
-| `09_monitor.sh` | Dashboards and alarms for replica lag, archive failures, connections, disk space and failed logins |
+| `Akosa_Antonella_301929153_P5_09_monitor.sh` | Dashboards and alarms for replica lag, archive failures, connections, disk space and failed logins |
 
 **Encryption at rest.** I did not demonstrate disk or backup encryption in this lab. For a cloud deployment, I would require encryption of database volumes and backups using managed keys. Portfolio 1 separately demonstrated column-level protection using `pgcrypto`. Under a shared-responsibility model, the provider manages parts of the underlying platform, while the organisation remains responsible for access controls, data handling, backup verification and configuration. A real library processing Nigerian members' personal data would also need to consider the Nigeria Data Protection Act 2023 when designing access, encryption, retention and backup locations.
 
 ## 8. Implementation Limitations
 
 - **Single-machine deployment.** All four servers ran on one laptop or Codespace, so I did not test separate hardware failures, availability zones or realistic network delay. The **376 ms** replica visibility measurement includes the check itself; production lag may differ.
-- **Manual failover and split brain.** I promoted the replica with `07_failover.sh`, without an automatic failover manager. I did not rebuild the old primary as a standby or test failback. Options include `pg_rewind` or replacing its data with a fresh base backup. Restarting the old primary showed why its ability to accept independent writes must be controlled.
+- **Manual failover and split brain.** I promoted the replica with `Akosa_Antonella_301929153_P5_07_failover.sh`, without an automatic failover manager. I did not rebuild the old primary as a standby or test failback. Options include `pg_rewind` or replacing its data with a fresh base backup. Restarting the old primary showed why its ability to accept independent writes must be controlled.
 - **Cross-shard transactions are not atomic.** Each shard commits separately. I did not implement two-phase commit or another mechanism to commit changes across shards as one transaction; cross-branch workflows could therefore be left partially complete.
 - **Self-generated certificates.** I used a private CA and the same server certificate for all four nodes. This was suitable for the lab, but not the certificate-management arrangement I would choose for production.
 - **MongoDB.** Portfolio 4 runs MongoDB as a single node. I did not test MongoDB replica sets or sharding.
@@ -157,7 +157,7 @@ I used the laboratory components to describe how the same design could be deploy
 
 ## 9. Supporting Evidence
 
-I recorded ten screenshots with the clock visible in `evidence/`: `01_cluster_up`, `02_load_primary`, `03_replication`, `04_sharding`, `05_security`, `06_backup_pitr`, `07_failover`, `07_after_failover_monitor`, `08_all_tests` and `09_monitor`.
+I recorded ten screenshots with the clock visible in `evidence/`: `Akosa_Antonella_301929153_P5_01_cluster_up`, `Akosa_Antonella_301929153_P5_02_load_primary`, `Akosa_Antonella_301929153_P5_03_replication`, `Akosa_Antonella_301929153_P5_04_sharding`, `Akosa_Antonella_301929153_P5_05_security`, `Akosa_Antonella_301929153_P5_06_backup_pitr`, `Akosa_Antonella_301929153_P5_07_failover`, `Akosa_Antonella_301929153_P5_07_after_failover_monitor`, `Akosa_Antonella_301929153_P5_08_all_tests` and `Akosa_Antonella_301929153_P5_09_monitor`.
 
 ## 10. References
 

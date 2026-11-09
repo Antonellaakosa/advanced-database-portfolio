@@ -1,9 +1,9 @@
 -- =====================================================================
 -- Unity Public Library Network (UPLN)  |  MIT 8103  |  Portfolio 2
--- File    : 04_run_benchmark.sql
+-- File    : Akosa_Antonella_301929153_P2_04_run_benchmark.sql
 -- Purpose : Measures all 9 queries and prints the results.
--- Run     : psql -U library_admin -d upln_perf -v label=before -f 04_run_benchmark.sql
---           psql -U library_admin -d upln_perf -v label=after  -f 04_run_benchmark.sql
+-- Run     : psql -U library_admin -d upln_perf -v label=before -f Akosa_Antonella_301929153_P2_04_run_benchmark.sql
+--           psql -U library_admin -d upln_perf -v label=after  -f Akosa_Antonella_301929153_P2_04_run_benchmark.sql
 --           (use label=before BEFORE creating the indexes, label=after AFTER)
 -- Time    : roughly 10 to 60 seconds.
 -- =====================================================================

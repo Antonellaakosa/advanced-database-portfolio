@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 # =====================================================================
 # UPLN | MIT 8103 | Portfolio 5
-# File    : 03_replication_tests.sh
+# File    : Akosa_Antonella_301929153_P5_03_replication_tests.sh
 # Purpose : Streaming replication from the primary to the replica:
 #           is it running, is it encrypted, how far behind is the copy,
 #           is the copy really read-only, and what changes when the primary
 #           must wait for the replica (synchronous commit)?
-# Run     : bash portfolio-5-distributed-cloud/03_replication_tests.sh
+# Run     : bash portfolio-5-distributed-cloud/Akosa_Antonella_301929153_P5_03_replication_tests.sh
 # =====================================================================
 set -u
-source "$(dirname "$0")/lib.sh"
+source "$(dirname "$0")/Akosa_Antonella_301929153_P5_lib.sh"
 begin_scenario "03_replication"
 echo "== Replication tests: primary -> replica =="
 

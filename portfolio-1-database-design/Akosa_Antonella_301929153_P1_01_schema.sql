@@ -1,8 +1,8 @@
 -- =====================================================================
 -- Unity Public Library Network (UPLN)  |  MIT 8103  |  Portfolio 1
--- File    : 01_schema.sql
+-- File    : Akosa_Antonella_301929153_P1_01_schema.sql
 -- Purpose : Creates the relational schema (15 tables, 1 view) in PostgreSQL 16.
--- Run     : psql -U library_admin -d upln -f 01_schema.sql
+-- Run     : psql -U library_admin -d upln -f Akosa_Antonella_301929153_P1_01_schema.sql
 -- Note    : Safe to re-run. It drops existing UPLN tables first.
 -- Note    : Secondary (non-key) indexes are deliberately NOT created here.
 --           Portfolio 2 adds them so the before/after comparison is fair.

@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # =====================================================================
 # Unity Public Library Network (UPLN) | MIT 8103 | Portfolio 4
-# File    : 00_start_mongo.sh
+# File    : Akosa_Antonella_301929153_P4_00_start_mongo.sh
 # Purpose : Starts MongoDB (a separate container, port 127.0.0.1:27017),
 #           waits until it answers, and prints its version.
-# Run     : bash portfolio-4-nosql/00_start_mongo.sh        (from the repo root)
+# Run     : bash portfolio-4-nosql/Akosa_Antonella_301929153_P4_00_start_mongo.sh        (from the repo root)
 # =====================================================================
 set -u
-source "$(dirname "$0")/lib.sh"
+source "$(dirname "$0")/Akosa_Antonella_301929153_P4_lib.sh"
 echo "== Starting MongoDB for Portfolio 4 =="
 docker compose -f "$COMPOSE_FILE" up -d || { echo "Could not start MongoDB. Is Docker running?"; exit 1; }
 echo -n "   waiting for MongoDB to answer"

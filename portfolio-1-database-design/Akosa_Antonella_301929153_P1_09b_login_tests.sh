@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # =====================================================================
 # Unity Public Library Network (UPLN) | MIT 8103 | Portfolio 1 (security)
-# File    : 09b_login_tests.sh
+# File    : Akosa_Antonella_301929153_P1_09b_login_tests.sh
 # Purpose : Creates the two login accounts with RANDOM passwords, then proves
 #           authentication really works by logging in as them over the network.
-# Run     : bash portfolio-1-database-design/09b_login_tests.sh   (from the repo root)
+# Run     : bash portfolio-1-database-design/Akosa_Antonella_301929153_P1_09b_login_tests.sh   (from the repo root)
 # Note    : The random passwords live only in this shell session's memory.
 #           They are never written to a file or committed.
 # =====================================================================
@@ -19,7 +19,7 @@ login_sql() {
   if [ -n "${UPLN_PSQL_LOCAL:-}" ]; then      # test hook: a server outside Docker
     PGPASSWORD="$2" psql -X -h 127.0.0.1 -p "$UPLN_PSQL_LOCAL" -U "$1" -d upln -c "$3" 2>&1
   else
-    docker compose exec -T -e PGPASSWORD="$2" postgres psql -X -h postgres -U "$1" -d upln -c "$3" 2>&1
+    docker compose -f "$HERE/../Akosa_Antonella_301929153_docker-compose.yml" exec -T -e PGPASSWORD="$2" postgres psql -X -h postgres -U "$1" -d upln -c "$3" 2>&1
   fi
 }
 admin_file() {                                  # run a file as the administrator
@@ -27,13 +27,13 @@ admin_file() {                                  # run a file as the administrato
     psql -X -h /tmp -p "$UPLN_PSQL_LOCAL" -U postgres -d upln -v ON_ERROR_STOP=1 -q \
          -v amina_pw="$AMINA_PW" -v ngozi_pw="$NGOZI_PW" -f "$1"
   else
-    docker compose exec -T postgres psql -X -U library_admin -d upln -v ON_ERROR_STOP=1 -q \
+    docker compose -f "$HERE/../Akosa_Antonella_301929153_docker-compose.yml" exec -T postgres psql -X -U library_admin -d upln -v ON_ERROR_STOP=1 -q \
          -v amina_pw="$AMINA_PW" -v ngozi_pw="$NGOZI_PW" < "$1"
   fi
 }
 
 echo "##### Step 1: create the login accounts (passwords are random and not shown) #####"
-admin_file "$HERE/09_authentication.sql" || { echo "setup failed"; exit 1; }
+admin_file "$HERE/Akosa_Antonella_301929153_P1_09_authentication.sql" || { echo "setup failed"; exit 1; }
 
 echo
 echo "##### L1: wrong password must be REFUSED #####"

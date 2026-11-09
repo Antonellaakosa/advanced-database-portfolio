@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # =====================================================================
 # UPLN | MIT 8103 | Portfolio 5
-# File    : 06_backup_pitr.sh
+# File    : Akosa_Antonella_301929153_P5_06_backup_pitr.sh
 # Purpose : Backup and point-in-time recovery (PITR) drill.
 #           1. take a physical base backup of the primary and verify it
 #           2. keep writing; the primary archives its WAL (the change log)
@@ -10,14 +10,14 @@
 #              stopping at the marked time, and measure how long that takes (RTO)
 #           5. prove the lost rows are back and nothing after the mark leaked in (RPO)
 #           The live primary is never touched by the restore.
-# Run     : bash portfolio-5-distributed-cloud/06_backup_pitr.sh
+# Run     : bash portfolio-5-distributed-cloud/Akosa_Antonella_301929153_P5_06_backup_pitr.sh
 # =====================================================================
 set -u
-source "$(dirname "$0")/lib.sh"
+source "$(dirname "$0")/Akosa_Antonella_301929153_P5_lib.sh"
 begin_scenario "06_backup_pitr"
 echo "== Backup and point-in-time recovery drill =="
 
-RARGS="-c config_file=/etc/p5/postgresql.p5.conf -c hba_file=/etc/p5/pg_hba.p5.conf -c ssl_cert_file=/var/lib/postgresql/tls/server.crt -c ssl_key_file=/var/lib/postgresql/tls/server.key -c ssl_ca_file=/var/lib/postgresql/tls/ca.crt -c archive_mode=off -c port=5545 -c listen_addresses=127.0.0.1"
+RARGS="-c config_file=/etc/p5/Akosa_Antonella_301929153_P5_postgresql.p5.conf -c hba_file=/etc/p5/Akosa_Antonella_301929153_P5_pg_hba.p5.conf -c ssl_cert_file=/var/lib/postgresql/tls/server.crt -c ssl_key_file=/var/lib/postgresql/tls/server.key -c ssl_ca_file=/var/lib/postgresql/tls/ca.crt -c archive_mode=off -c port=5545 -c listen_addresses=127.0.0.1"
 
 # ---------- helpers that differ between Docker and the local test hook ----------
 take_base_backup() {

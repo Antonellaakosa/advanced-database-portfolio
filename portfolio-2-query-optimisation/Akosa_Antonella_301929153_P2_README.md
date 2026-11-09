@@ -10,7 +10,7 @@ I tested how PostgreSQL processes common library queries and measured how indexe
 
 ## 2. Test Database and Dataset
 
-I used a separate `upln_perf` database to keep the Portfolio 1 evidence unchanged. `01_generate_data.sql` populated it using the Portfolio 1 schema, with synthetic data and `setseed` for reproducibility.
+I used a separate `upln_perf` database to keep the Portfolio 1 evidence unchanged. `Akosa_Antonella_301929153_P2_01_generate_data.sql` populated it using the Portfolio 1 schema, with synthetic data and `setseed` for reproducibility.
 
 | Table | Rows (approx.) |
 |---|---|
@@ -24,10 +24,10 @@ Small tables can be faster to scan than to access through an index, so I used la
 
 ## 3. Benchmark Method
 
-1. I used nine library queries stored in `bench_queries` (`02_benchmark_harness.sql`).
+1. I used nine library queries stored in `bench_queries` (`Akosa_Antonella_301929153_P2_02_benchmark_harness.sql`).
 2. `bench_run()` ran each query once to warm the cache, then **5 times** using `EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON)`. I recorded the **median** execution time to limit one-off variation, along with the scan/join types and buffer pages touched in the last timed run.
-3. I benchmarked **before** adding the performance indexes, created them with `05_create_indexes.sql`, then benchmarked **after**.
-4. I saved full execution plans with `03_explain_plans.sql` for both stages.
+3. I benchmarked **before** adding the performance indexes, created them with `Akosa_Antonella_301929153_P2_05_create_indexes.sql`, then benchmarked **after**.
+4. I saved full execution plans with `Akosa_Antonella_301929153_P2_03_explain_plans.sql` for both stages.
 
 ## 4. Implementation and Test Execution
 
@@ -35,24 +35,24 @@ I ran the following commands from the repository root in my Codespace:
 
 ```bash
 # one-off: create the separate database and load the Portfolio 1 schema and sample rows
-docker compose exec -T postgres psql -U library_admin -d postgres -c "CREATE DATABASE upln_perf"
-P="docker compose exec -T postgres psql -U library_admin -d upln_perf -v ON_ERROR_STOP=1"
-$P < portfolio-1-database-design/01_schema.sql
-$P < portfolio-1-database-design/02_sample_data.sql
+docker compose -f Akosa_Antonella_301929153_docker-compose.yml exec -T postgres psql -U library_admin -d postgres -c "CREATE DATABASE upln_perf"
+P="docker compose -f Akosa_Antonella_301929153_docker-compose.yml exec -T postgres psql -U library_admin -d upln_perf -v ON_ERROR_STOP=1"
+$P < portfolio-1-database-design/Akosa_Antonella_301929153_P1_01_schema.sql
+$P < portfolio-1-database-design/Akosa_Antonella_301929153_P1_02_sample_data.sql
 cd portfolio-2-query-optimisation
-$P < 01_generate_data.sql            # about 1 to 3 minutes (add -v scale=0.1 for a 10% size test)
-$P < 02_benchmark_harness.sql
-$P -v label=before < 04_run_benchmark.sql
-$P -v which=before < 03_explain_plans.sql | tee results/plans_before.txt
-$P < 05_create_indexes.sql
-$P -v label=after  < 04_run_benchmark.sql
-$P -v which=after  < 03_explain_plans.sql | tee results/plans_after.txt
-$P < 06_compare_results.sql
-$P < 07_extra_experiments.sql | tee results/extra_experiments.txt
-$P < 08_query_results.sql | tee results/query_results.txt
+$P < Akosa_Antonella_301929153_P2_01_generate_data.sql            # about 1 to 3 minutes (add -v scale=0.1 for a 10% size test)
+$P < Akosa_Antonella_301929153_P2_02_benchmark_harness.sql
+$P -v label=before < Akosa_Antonella_301929153_P2_04_run_benchmark.sql
+$P -v which=before < Akosa_Antonella_301929153_P2_03_explain_plans.sql | tee results/Akosa_Antonella_301929153_P2_plans_before.txt
+$P < Akosa_Antonella_301929153_P2_05_create_indexes.sql
+$P -v label=after  < Akosa_Antonella_301929153_P2_04_run_benchmark.sql
+$P -v which=after  < Akosa_Antonella_301929153_P2_03_explain_plans.sql | tee results/Akosa_Antonella_301929153_P2_plans_after.txt
+$P < Akosa_Antonella_301929153_P2_06_compare_results.sql
+$P < Akosa_Antonella_301929153_P2_07_extra_experiments.sql | tee results/Akosa_Antonella_301929153_P2_extra_experiments.txt
+$P < Akosa_Antonella_301929153_P2_08_query_results.sql | tee results/Akosa_Antonella_301929153_P2_query_results.txt
 ```
 
-The `before` and `after` labels identify the benchmark runs. I compared them with `06_compare_results.sql`, then ran `07_extra_experiments.sql`. Finally, `08_query_results.sql` prints each query's SQL and the rows it returns, and checks that the optimised versions return the same rows.
+The `before` and `after` labels identify the benchmark runs. I compared them with `Akosa_Antonella_301929153_P2_06_compare_results.sql`, then ran `Akosa_Antonella_301929153_P2_07_extra_experiments.sql`. Finally, `Akosa_Antonella_301929153_P2_08_query_results.sql` prints each query's SQL and the rows it returns, and checks that the optimised versions return the same rows.
 
 ## 5. Queries and Optimisation Techniques
 
@@ -72,7 +72,7 @@ I tested nine queries covering searches, loans, availability, reports and fines.
 
 ### What the queries return
 
-The benchmark measures speed, so I also checked what each query returns. [`08_query_results.sql`](08_query_results.sql) prints the SQL, the first rows and the total row count for all nine queries. Three of the statements are shown here; the other six are in [`02_benchmark_harness.sql`](02_benchmark_harness.sql).
+The benchmark measures speed, so I also checked what each query returns. [`Akosa_Antonella_301929153_P2_08_query_results.sql`](Akosa_Antonella_301929153_P2_08_query_results.sql) prints the SQL, the first rows and the total row count for all nine queries. Three of the statements are shown here; the other six are in [`Akosa_Antonella_301929153_P2_02_benchmark_harness.sql`](Akosa_Antonella_301929153_P2_02_benchmark_harness.sql).
 
 ```sql
 -- Q2: a member's 10 most recent loans
@@ -100,7 +100,7 @@ For example, Q9 returned two rows in my run:
 | 114476 | 75.00 | 0 | 75.00 |
 | 124775 | 25.00 | 0 | 25.00 |
 
-I used `08_query_results.sql` to check that the optimised queries returned the same results under two planner configurations. I ran each query with normal planning and again with index-based scan methods discouraged through planner settings. The indexes remained in the database for both runs, so this was a comparison of query results rather than a repeat of the original pre-index benchmark. I compared fingerprints of the complete result sets without considering row order. For Q6, I also compared the materialised view with the original aggregate query. All nine comparisons returned identical rows.
+I used `Akosa_Antonella_301929153_P2_08_query_results.sql` to check that the optimised queries returned the same results under two planner configurations. I ran each query with normal planning and again with index-based scan methods discouraged through planner settings. The indexes remained in the database for both runs, so this was a comparison of query results rather than a repeat of the original pre-index benchmark. I compared fingerprints of the complete result sets without considering row order. For Q6, I also compared the materialised view with the original aggregate query. All nine comparisons returned identical rows.
 
 | Query | Rows returned | Same rows under both planner configurations |
 |---|---|---|
@@ -114,7 +114,7 @@ I used `08_query_results.sql` to check that the optimised queries returned the s
 | Q8 Titles by an author | 6 | identical |
 | Q9 Member's outstanding fines | 2 | identical |
 
-This shows that the faster plans return the same data for these nine queries. It is a check on my own queries, not a general proof. Evidence: `evidence/09_query_results.png` and the full output in `results/query_results.txt`.
+This shows that the faster plans return the same data for these nine queries. It is a check on my own queries, not a general proof. Evidence: `evidence/Akosa_Antonella_301929153_P2_09_query_results.png` and the full output in `results/Akosa_Antonella_301929153_P2_query_results.txt`.
 
 ## 6. Benchmark Results
 
@@ -132,9 +132,9 @@ These are my **median execution times from 5 runs**, using **1,000,010 loans**. 
 | Q8 Titles by an author | 13.326 | 0.028 | 475.9x | 731 → 29 | Seq Scans → Index Scans |
 | Q9 Member's outstanding fines | 84.624 | 0.126 | 671.6x | 11,245 → 173 | Seq Scans → Index and Bitmap Scans |
 
-Evidence: `evidence/02_baseline_benchmark.png`, `04_after_benchmark.png`, `05_comparison.png`.
+Evidence: `evidence/Akosa_Antonella_301929153_P2_02_baseline_benchmark.png`, `Akosa_Antonella_301929153_P2_04_after_benchmark.png`, `Akosa_Antonella_301929153_P2_05_comparison.png`.
 
-Index sizes (`evidence/03_indexes_created.png`):
+Index sizes (`evidence/Akosa_Antonella_301929153_P2_03_indexes_created.png`):
 
 | Index | Table | Size |
 |---|---|---|
@@ -150,7 +150,7 @@ Index sizes (`evidence/03_indexes_created.png`):
 
 ## 7. Execution Plan and Performance Analysis
 
-**Changes in execution plans.** Before I added performance indexes, many queries used sequential scans (`Seq Scan`). For Q2, the plan recorded `Parallel Seq Scan on loan ... Filter: (member_id = 1500) ... Rows Removed by Filter: 333324`—about a million rows examined to return 10 (`evidence/06_plans_before.png`). After indexing, PostgreSQL used an index scan and the number of 8 kB pages touched fell from 10,596 to 83.
+**Changes in execution plans.** Before I added performance indexes, many queries used sequential scans (`Seq Scan`). For Q2, the plan recorded `Parallel Seq Scan on loan ... Filter: (member_id = 1500) ... Rows Removed by Filter: 333324`—about a million rows examined to return 10 (`evidence/Akosa_Antonella_301929153_P2_06_plans_before.png`). After indexing, PostgreSQL used an index scan and the number of 8 kB pages touched fell from 10,596 to 83.
 
 **Q2 — Composite index.** `(member_id, loaned_at DESC)` matches the filter and sort order, so PostgreSQL returned the latest 10 loans without a separate sort.
 
@@ -168,7 +168,7 @@ Index sizes (`evidence/03_indexes_created.png`):
 
 ## 8. Additional Performance Experiments
 
-I used `07_extra_experiments.sql` to test index size, join algorithms, statistics, parallelism, physical order and write costs.
+I used `Akosa_Antonella_301929153_P2_07_extra_experiments.sql` to test index size, join algorithms, statistics, parallelism, physical order and write costs.
 
 | # | Experiment | Result | Conclusion |
 |---|---|---|---|
@@ -184,14 +184,14 @@ I used `07_extra_experiments.sql` to test index size, join algorithms, statistic
 
 | File | Shows |
 |---|---|
-| `evidence/01_data_generated.png` | Row counts and table sizes after data generation |
-| `evidence/02_baseline_benchmark.png` | Benchmark before indexes |
-| `evidence/03_indexes_created.png` | Indexes and materialised view, with sizes |
-| `evidence/04_after_benchmark.png` | Benchmark after indexes |
-| `evidence/05_comparison.png` | Before/after table and plan changes |
-| `evidence/06_plans_before.png`, `07_plans_after.png` | Execution plans (full text in `results/plans_before.txt`, `plans_after.txt`) |
-| `evidence/08_extra_experiments_a.png` to `evidence/08_extra_experiments_e.png` | The seven experiments (full text in `results/extra_experiments.txt`) |
-| `evidence/09_query_results.png` | Query results and the result-equivalence check recorded on 2 November 2026 (full text in `results/query_results.txt`) |
+| `evidence/Akosa_Antonella_301929153_P2_01_data_generated.png` | Row counts and table sizes after data generation |
+| `evidence/Akosa_Antonella_301929153_P2_02_baseline_benchmark.png` | Benchmark before indexes |
+| `evidence/Akosa_Antonella_301929153_P2_03_indexes_created.png` | Indexes and materialised view, with sizes |
+| `evidence/Akosa_Antonella_301929153_P2_04_after_benchmark.png` | Benchmark after indexes |
+| `evidence/Akosa_Antonella_301929153_P2_05_comparison.png` | Before/after table and plan changes |
+| `evidence/Akosa_Antonella_301929153_P2_06_plans_before.png`, `Akosa_Antonella_301929153_P2_07_plans_after.png` | Execution plans (full text in `results/Akosa_Antonella_301929153_P2_plans_before.txt`, `Akosa_Antonella_301929153_P2_plans_after.txt`) |
+| `evidence/Akosa_Antonella_301929153_P2_08_extra_experiments_a.png` to `evidence/Akosa_Antonella_301929153_P2_08_extra_experiments_e.png` | The seven experiments (full text in `results/Akosa_Antonella_301929153_P2_extra_experiments.txt`) |
+| `evidence/Akosa_Antonella_301929153_P2_09_query_results.png` | Query results and the result-equivalence check recorded on 2 November 2026 (full text in `results/Akosa_Antonella_301929153_P2_query_results.txt`) |
 
 Commit history on GitHub shows the work in stages: project setup, the data generator with the baseline results, the after-index results with the extra experiments, the README, and the query-result check.
 

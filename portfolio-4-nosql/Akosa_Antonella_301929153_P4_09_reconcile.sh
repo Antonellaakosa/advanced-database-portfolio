@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # =====================================================================
 # Unity Public Library Network (UPLN) | MIT 8103 | Portfolio 4
-# File    : 09_reconcile.sh
+# File    : Akosa_Antonella_301929153_P4_09_reconcile.sh
 # Purpose : Proves the migration was faithful. Compares PostgreSQL (the
 #           source of truth) with the migrated documents in MongoDB:
 #           titles, copies and free copies, per category.
 # =====================================================================
 set -u
-source "$(dirname "$0")/lib.sh"
+source "$(dirname "$0")/Akosa_Antonella_301929153_P4_lib.sh"
 PASS=0; FAIL=0
 verdict() { if [ "$2" = "$3" ]; then echo "   PASS  $1   (PostgreSQL $2 = MongoDB $3)"; PASS=$((PASS+1)); else echo "   FAIL  $1   (PostgreSQL $2, MongoDB $3)"; FAIL=$((FAIL+1)); fi; }
 

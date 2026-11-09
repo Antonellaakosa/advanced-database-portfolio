@@ -1,20 +1,20 @@
 #!/usr/bin/env bash
 # =====================================================================
 # Unity Public Library Network (UPLN) | MIT 8103 | Portfolio 3
-# File    : 07_run_all_tests.sh
+# File    : Akosa_Antonella_301929153_P3_07_run_all_tests.sh
 # Purpose : Rebuilds the test database and runs every Portfolio 3 test in
 #           order, then prints ONE summary table. Takes about 1.5 minutes.
-# Run     : bash portfolio-3-transactions-concurrency/07_run_all_tests.sh   (from the repo root)
+# Run     : bash portfolio-3-transactions-concurrency/Akosa_Antonella_301929153_P3_07_run_all_tests.sh   (from the repo root)
 # =====================================================================
 set -u
-source "$(dirname "$0")/lib.sh"
+source "$(dirname "$0")/Akosa_Antonella_301929153_P3_lib.sh"
 
 echo "Rebuilding $DB ..."
-bash "$HERE/00_setup.sh" > /dev/null 2>&1 || { echo "Setup failed. Run 00_setup.sh on its own to see why."; exit 1; }
+bash "$HERE/Akosa_Antonella_301929153_P3_00_setup.sh" > /dev/null 2>&1 || { echo "Setup failed. Run Akosa_Antonella_301929153_P3_00_setup.sh on its own to see why."; exit 1; }
 
 echo "Running the tests (each one prints its own PASS/FAIL lines to a log, only the summary is shown here)..."
-psqlx -v ON_ERROR_STOP=0 < "$HERE/02_acid_basics.sql" > /dev/null 2>&1;  echo "   done: 02 ACID basics"
-for f in 03_double_borrow_race 04_isolation_levels 05_deadlock 06_two_cashiers; do
+psqlx -v ON_ERROR_STOP=0 < "$HERE/Akosa_Antonella_301929153_P3_02_acid_basics.sql" > /dev/null 2>&1;  echo "   done: 02 ACID basics"
+for f in Akosa_Antonella_301929153_P3_03_double_borrow_race Akosa_Antonella_301929153_P3_04_isolation_levels Akosa_Antonella_301929153_P3_05_deadlock Akosa_Antonella_301929153_P3_06_two_cashiers; do
   bash "$HERE/$f.sh" > "$TMPD/$f.log" 2>&1; echo "   done: $f"
 done
 

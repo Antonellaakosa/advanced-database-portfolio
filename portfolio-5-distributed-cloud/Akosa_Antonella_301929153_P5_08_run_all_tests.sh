@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
 # =====================================================================
 # UPLN | MIT 8103 | Portfolio 5
-# File    : 08_run_all_tests.sh
+# File    : Akosa_Antonella_301929153_P5_08_run_all_tests.sh
 # Purpose : Builds the cluster from nothing, runs every test in a safe
 #           order and prints one summary. Takes about 5 minutes.
 #           (The failover test runs last because it changes the cluster.)
-# Run     : bash portfolio-5-distributed-cloud/08_run_all_tests.sh
+# Run     : bash portfolio-5-distributed-cloud/Akosa_Antonella_301929153_P5_08_run_all_tests.sh
 # =====================================================================
 set -u
-source "$(dirname "$0")/lib.sh"
+source "$(dirname "$0")/Akosa_Antonella_301929153_P5_lib.sh"
 rm -f "$RESULTS"; : > "$RESULTS"
-bash "$HERE/01_start_cluster.sh" --reset   || exit 1
-bash "$HERE/02_load_primary.sh"            || exit 1
-for t in 03_replication_tests 04_sharding 05_security_checks 06_backup_pitr 07_failover; do
+bash "$HERE/Akosa_Antonella_301929153_P5_01_start_cluster.sh" --reset   || exit 1
+bash "$HERE/Akosa_Antonella_301929153_P5_02_load_primary.sh"            || exit 1
+for t in Akosa_Antonella_301929153_P5_03_replication_tests Akosa_Antonella_301929153_P5_04_sharding Akosa_Antonella_301929153_P5_05_security_checks Akosa_Antonella_301929153_P5_06_backup_pitr Akosa_Antonella_301929153_P5_07_failover; do
   bash "$HERE/$t.sh"
 done
 echo

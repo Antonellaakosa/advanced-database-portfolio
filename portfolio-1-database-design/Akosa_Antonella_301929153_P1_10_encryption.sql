@@ -1,6 +1,6 @@
 -- =====================================================================
 -- Unity Public Library Network (UPLN)  |  MIT 8103  |  Portfolio 1 (security)
--- File    : 10_encryption.sql
+-- File    : Akosa_Antonella_301929153_P1_10_encryption.sql
 -- Purpose : ENCRYPTION and HASHING with the pgcrypto extension.
 --           1. A sensitive personal identifier (the National Identification
 --              Number, NIN) is stored ENCRYPTED, so a stolen copy of the
@@ -8,13 +8,13 @@
 --           2. Passwords for any future online member account would be
 --              stored HASHED (salted bcrypt), never encrypted or plain.
 --           3. A live check of whether the connection itself is encrypted.
--- Run     : bash portfolio-1-database-design/10b_run_encryption.sh
+-- Run     : bash portfolio-1-database-design/Akosa_Antonella_301929153_P1_10b_run_encryption.sh
 --           (it creates a random key for the demo; keys are NEVER committed)
 -- Requires: 01 .. 06
 -- =====================================================================
 \if :{?nin_key}
 \else
-  \echo 'ERROR: run this through 10b_run_encryption.sh (it supplies the key)'
+  \echo 'ERROR: run this through Akosa_Antonella_301929153_P1_10b_run_encryption.sh (it supplies the key)'
   \quit
 \endif
 SET client_min_messages = warning;

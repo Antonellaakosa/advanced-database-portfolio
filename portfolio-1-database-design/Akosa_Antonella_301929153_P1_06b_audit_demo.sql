@@ -1,12 +1,12 @@
 -- =====================================================================
 -- Unity Public Library Network (UPLN)  |  MIT 8103  |  Portfolio 1 (security)
--- File    : 06b_audit_demo.sql
+-- File    : Akosa_Antonella_301929153_P1_06b_audit_demo.sql
 -- Purpose : A short, REAL working day. Staff make changes; the audit log
 --           records them; an auditor reads the trail. Unlike 07_audit_tests,
 --           these changes are kept (the net effect on your data is nil:
 --           each change is reversed, which is itself recorded).
--- Run     : psql -U library_admin -d upln -f 06b_audit_demo.sql
--- Requires: 06_audit_log.sql
+-- Run     : psql -U library_admin -d upln -f Akosa_Antonella_301929153_P1_06b_audit_demo.sql
+-- Requires: Akosa_Antonella_301929153_P1_06_audit_log.sql
 -- =====================================================================
 \pset format aligned
 \pset border 2

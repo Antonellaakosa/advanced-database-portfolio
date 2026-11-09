@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # =====================================================================
 # Unity Public Library Network (UPLN) | MIT 8103 | Portfolio 3
-# File    : 04_isolation_levels.sh
+# File    : Akosa_Antonella_301929153_P3_04_isolation_levels.sh
 # Purpose : What other sessions can and cannot see, and what goes wrong
 #           when two people read-then-write at the same time.
 #   Part 1  Dirty read / non-repeatable read: READ COMMITTED, REPEATABLE READ, READ UNCOMMITTED
@@ -9,11 +9,11 @@
 #   Part 3  Write skew: the 5-loan limit broken by two borrows at once,
 #           under READ COMMITTED, REPEATABLE READ and SERIALIZABLE (with retry),
 #           then the safe checkout_copy()
-# Run     : bash portfolio-3-transactions-concurrency/04_isolation_levels.sh   (from the repo root)
-# Requires: 00_setup.sh
+# Run     : bash portfolio-3-transactions-concurrency/Akosa_Antonella_301929153_P3_04_isolation_levels.sh   (from the repo root)
+# Requires: Akosa_Antonella_301929153_P3_00_setup.sh
 # =====================================================================
 set -u
-source "$(dirname "$0")/lib.sh"
+source "$(dirname "$0")/Akosa_Antonella_301929153_P3_lib.sh"
 S=isolation
 sql "DELETE FROM p3_results WHERE scenario='$S'" > /dev/null
 

@@ -1,6 +1,6 @@
 -- =====================================================================
 -- Unity Public Library Network (UPLN)  |  MIT 8103  |  Portfolio 3
--- File    : 01_transaction_functions.sql
+-- File    : Akosa_Antonella_301929153_P3_01_transaction_functions.sql
 -- Purpose : The "business transactions" used by every test in this folder,
 --           plus small helpers for fixtures and for printing PASS/FAIL.
 --
@@ -12,7 +12,7 @@
 --   p3_cleanup()      Removes the rows the tests create (barcode 'P3-%',
 --                     member email 'p3.%'). Never touches the Portfolio 1 sample data.
 --   p3_check()        Records and prints one PASS/FAIL line.
--- Run     : (done for you by 00_setup.sh)
+-- Run     : (done for you by Akosa_Antonella_301929153_P3_00_setup.sh)
 -- =====================================================================
 SET client_min_messages = warning;
 

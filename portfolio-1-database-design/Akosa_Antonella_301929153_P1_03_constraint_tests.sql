@@ -1,12 +1,12 @@
 -- =====================================================================
 -- Unity Public Library Network (UPLN)  |  MIT 8103  |  Portfolio 1
--- File    : 03_constraint_tests.sql
+-- File    : Akosa_Antonella_301929153_P1_03_constraint_tests.sql
 -- Purpose : Proves that keys and constraints really protect the data.
 --           Each test deliberately tries to break one rule. A test PASSES
 --           when PostgreSQL REJECTS the bad statement with the expected
 --           error type. Nothing is changed in the database.
--- Run     : psql -U library_admin -d upln -f 03_constraint_tests.sql
--- Requires: 01_schema.sql and 02_sample_data.sql have been run.
+-- Run     : psql -U library_admin -d upln -f Akosa_Antonella_301929153_P1_03_constraint_tests.sql
+-- Requires: Akosa_Antonella_301929153_P1_01_schema.sql and Akosa_Antonella_301929153_P1_02_sample_data.sql have been run.
 -- =====================================================================
 
 -- A small temporary helper (it disappears when the session ends).

@@ -10,20 +10,20 @@ This directory contains the database schema, sample dataset, implementation scri
 
 | File or directory | Purpose |
 |---|---|
-| [`01_schema.sql`](01_schema.sql) | Creates the 15 core tables, primary and foreign keys, constraints and initial fine-balance view |
-| [`02_sample_data.sql`](02_sample_data.sql) | Populates the schema with a small, consistent synthetic dataset |
-| [`03_constraint_tests.sql`](03_constraint_tests.sql) | Executes 18 negative integrity tests and a valid-loan test to assess constraint enforcement |
-| [`04_security_privacy.sql`](04_security_privacy.sql) | Implements database roles, least-privilege permissions, privacy-preserving views and row-level security |
-| [`05_security_tests.sql`](05_security_tests.sql) | Executes 14 permission tests and demonstrates data masking and row-level filtering |
-| [`06_audit_log.sql`](06_audit_log.sql) and [`06b_audit_demo.sql`](06b_audit_demo.sql) | Implements the audit log (table 16), then generates sample activity to demonstrate its operation |
-| [`07_audit_tests.sql`](07_audit_tests.sql) | Executes 18 tests of audit recording, access restrictions and tamper resistance |
-| [`08_payment_guard.sql`](08_payment_guard.sql) and [`08b_payment_guard_tests.sql`](08b_payment_guard_tests.sql) | Implements fine-payment validation and executes six integrity tests |
-| [`09_authentication.sql`](09_authentication.sql) and [`09b_login_tests.sh`](09b_login_tests.sh) | Creates demonstration login accounts and tests authentication and associated privileges |
-| [`10_encryption.sql`](10_encryption.sql) and [`10b_run_encryption.sh`](10b_run_encryption.sh) | Implements encrypted member identification data (table 17), demonstrates password hashing and executes ten tests |
-| [`11_sql_injection_demo.sql`](11_sql_injection_demo.sql) | Demonstrates SQL injection, parameterised-query protection and the effect of restricted permissions |
-| [`er_diagram.png`](er_diagram.png) and [`er_diagram.svg`](er_diagram.svg) | Entity–relationship diagram generated from the implemented database |
-| [`er_diagram.mmd`](er_diagram.mmd) | Mermaid source describing the principal entities and relationships |
-| [`build_er_diagram.py`](build_er_diagram.py) | Generates the database diagram from the live schema |
+| [`Akosa_Antonella_301929153_P1_01_schema.sql`](Akosa_Antonella_301929153_P1_01_schema.sql) | Creates the 15 core tables, primary and foreign keys, constraints and initial fine-balance view |
+| [`Akosa_Antonella_301929153_P1_02_sample_data.sql`](Akosa_Antonella_301929153_P1_02_sample_data.sql) | Populates the schema with a small, consistent synthetic dataset |
+| [`Akosa_Antonella_301929153_P1_03_constraint_tests.sql`](Akosa_Antonella_301929153_P1_03_constraint_tests.sql) | Executes 18 negative integrity tests and a valid-loan test to assess constraint enforcement |
+| [`Akosa_Antonella_301929153_P1_04_security_privacy.sql`](Akosa_Antonella_301929153_P1_04_security_privacy.sql) | Implements database roles, least-privilege permissions, privacy-preserving views and row-level security |
+| [`Akosa_Antonella_301929153_P1_05_security_tests.sql`](Akosa_Antonella_301929153_P1_05_security_tests.sql) | Executes 14 permission tests and demonstrates data masking and row-level filtering |
+| [`Akosa_Antonella_301929153_P1_06_audit_log.sql`](Akosa_Antonella_301929153_P1_06_audit_log.sql) and [`Akosa_Antonella_301929153_P1_06b_audit_demo.sql`](Akosa_Antonella_301929153_P1_06b_audit_demo.sql) | Implements the audit log (table 16), then generates sample activity to demonstrate its operation |
+| [`Akosa_Antonella_301929153_P1_07_audit_tests.sql`](Akosa_Antonella_301929153_P1_07_audit_tests.sql) | Executes 18 tests of audit recording, access restrictions and tamper resistance |
+| [`Akosa_Antonella_301929153_P1_08_payment_guard.sql`](Akosa_Antonella_301929153_P1_08_payment_guard.sql) and [`Akosa_Antonella_301929153_P1_08b_payment_guard_tests.sql`](Akosa_Antonella_301929153_P1_08b_payment_guard_tests.sql) | Implements fine-payment validation and executes six integrity tests |
+| [`Akosa_Antonella_301929153_P1_09_authentication.sql`](Akosa_Antonella_301929153_P1_09_authentication.sql) and [`Akosa_Antonella_301929153_P1_09b_login_tests.sh`](Akosa_Antonella_301929153_P1_09b_login_tests.sh) | Creates demonstration login accounts and tests authentication and associated privileges |
+| [`Akosa_Antonella_301929153_P1_10_encryption.sql`](Akosa_Antonella_301929153_P1_10_encryption.sql) and [`Akosa_Antonella_301929153_P1_10b_run_encryption.sh`](Akosa_Antonella_301929153_P1_10b_run_encryption.sh) | Implements encrypted member identification data (table 17), demonstrates password hashing and executes ten tests |
+| [`Akosa_Antonella_301929153_P1_11_sql_injection_demo.sql`](Akosa_Antonella_301929153_P1_11_sql_injection_demo.sql) | Demonstrates SQL injection, parameterised-query protection and the effect of restricted permissions |
+| [`Akosa_Antonella_301929153_P1_er_diagram.png`](Akosa_Antonella_301929153_P1_er_diagram.png) and [`Akosa_Antonella_301929153_P1_er_diagram.svg`](Akosa_Antonella_301929153_P1_er_diagram.svg) | Entity–relationship diagram generated from the implemented database |
+| [`Akosa_Antonella_301929153_P1_er_diagram.mmd`](Akosa_Antonella_301929153_P1_er_diagram.mmd) | Mermaid source describing the principal entities and relationships |
+| [`Akosa_Antonella_301929153_P1_build_er_diagram.py`](Akosa_Antonella_301929153_P1_build_er_diagram.py) | Generates the database diagram from the live schema |
 | [`evidence/`](evidence/) | Screenshots recording the execution and outcomes of the portfolio activities |
 
 ---
@@ -64,11 +64,11 @@ The distinction in R1 is intentional: a uniqueness rule prevents duplicate headq
 
 ## 2. Entity–Relationship Modelling
 
-The diagram shown below was generated from the PostgreSQL database using `build_er_diagram.py`, so it can be compared with the implemented table definitions. Within the generated diagram, yellow denotes primary-key columns and green denotes foreign-key columns; the relationship symbols indicate cardinality.
+The diagram shown below was generated from the PostgreSQL database using `Akosa_Antonella_301929153_P1_build_er_diagram.py`, so it can be compared with the implemented table definitions. Within the generated diagram, yellow denotes primary-key columns and green denotes foreign-key columns; the relationship symbols indicate cardinality.
 
-![UPLN entity–relationship diagram](er_diagram.png)
+![UPLN entity–relationship diagram](Akosa_Antonella_301929153_P1_er_diagram.png)
 
-The following Mermaid diagram summarises the principal relationships. The generated diagram and [`er_diagram.mmd`](er_diagram.mmd) contain the more detailed representation.
+The following Mermaid diagram summarises the principal relationships. The generated diagram and [`Akosa_Antonella_301929153_P1_er_diagram.mmd`](Akosa_Antonella_301929153_P1_er_diagram.mmd) contain the more detailed representation.
 
 ```mermaid
 erDiagram
@@ -107,7 +107,7 @@ These relationships informed the foreign keys and the separation of catalogue, c
 
 ## 3. Relational Schema and Design Decisions
 
-The schema definitions are provided in [`01_schema.sql`](01_schema.sql). In the table below, PK denotes primary key, FK foreign key and UQ a unique constraint.
+The schema definitions are provided in [`Akosa_Antonella_301929153_P1_01_schema.sql`](Akosa_Antonella_301929153_P1_01_schema.sql). In the table below, PK denotes primary key, FK foreign key and UQ a unique constraint.
 
 | Table | Primary key | Foreign keys | Notable constraints and design features |
 |---|---|---|---|
@@ -126,8 +126,8 @@ The schema definitions are provided in [`01_schema.sql`](01_schema.sql). In the 
 | `copy_transfer` | `transfer_id` | `copy_id`, `from_branch_id`, `to_branch_id`, `requested_by_staff_id` | Source and destination differ; transfer timestamps ordered |
 | `fine` | `fine_id` | `loan_id` → `loan` | UQ (`loan_id`, `reason`); positive amount |
 | `payment` | `payment_id` | `fine_id` → `fine`; `received_by_staff_id` → `staff` | Positive amount; restricted payment methods |
-| `audit_log` (added by `06_audit_log.sql`) | `audit_id` | None, by design | Recorded operation limited to `INSERT`, `UPDATE` or `DELETE`; append-only controls described in Section 7.5 |
-| `member_identity` (added by `10_encryption.sql`) | `member_id` | `member_id` → `member` | One-to-one extension; encrypted NIN and four-digit display suffix |
+| `audit_log` (added by `Akosa_Antonella_301929153_P1_06_audit_log.sql`) | `audit_id` | None, by design | Recorded operation limited to `INSERT`, `UPDATE` or `DELETE`; append-only controls described in Section 7.5 |
+| `member_identity` (added by `Akosa_Antonella_301929153_P1_10_encryption.sql`) | `member_id` | `member_id` → `member` | One-to-one extension; encrypted NIN and four-digit display suffix |
 
 The core schema creates 15 tables. The audit and encryption activities introduce `audit_log` and `member_identity`, bringing the implemented model to **17 tables**. The view `v_fine_balance` calculates amounts paid and balances outstanding from the fine and payment records; additional reporting and audit views are introduced by the security scripts.
 
@@ -153,7 +153,7 @@ Integrity constraints were implemented within PostgreSQL to enforce entity ident
 
 A key design choice was the use of a **partial unique index** for loan availability. The index `uq_one_active_loan_per_copy` enforces uniqueness on `copy_id` only where `returned_at IS NULL`. Consequently, the same copy may appear in multiple historical loans, but no second loan may remain active while an earlier loan is unreturned. This preserves loan history while enforcing the current lending restriction at the database level. The mechanism is described in the [PostgreSQL 16 partial-index documentation](https://www.postgresql.org/docs/16/indexes-partial.html).
 
-**Validation procedure.** I used `03_constraint_tests.sql` to submit 18 deliberately invalid operations and check that the database rejected them. The script also tests a valid loan and rolls back that demonstration transaction. The recorded results are shown in [`evidence/03_constraint_tests.png`](evidence/03_constraint_tests.png). These tests provide evidence that the specified constraints are active; they do not establish that every conceivable invalid operation has been tested.
+**Validation procedure.** I used `Akosa_Antonella_301929153_P1_03_constraint_tests.sql` to submit 18 deliberately invalid operations and check that the database rejected them. The script also tests a valid loan and rolls back that demonstration transaction. The recorded results are shown in [`evidence/Akosa_Antonella_301929153_P1_03_constraint_tests.png`](evidence/Akosa_Antonella_301929153_P1_03_constraint_tests.png). These tests provide evidence that the specified constraints are active; they do not establish that every conceivable invalid operation has been tested.
 
 ---
 
@@ -233,34 +233,34 @@ WHERE (c.status = 'on_loan') <> (l.loan_id IS NOT NULL);
 
 ### 6.1 Execution Environment and Procedure
 
-The implementation was executed against PostgreSQL 16 in Docker within a GitHub Codespace. From the repository root, the database container must first be started with `docker compose up -d`. The following commands execute the portfolio activities in the documented dependency order:
+The implementation was executed against PostgreSQL 16 in Docker within a GitHub Codespace. From the repository root, the database container must first be started with `docker compose -f Akosa_Antonella_301929153_docker-compose.yml up -d`. The following commands execute the portfolio activities in the documented dependency order:
 
 ```bash
-docker compose exec -T postgres psql -U library_admin -d upln -v ON_ERROR_STOP=1 < portfolio-1-database-design/01_schema.sql
-docker compose exec -T postgres psql -U library_admin -d upln -v ON_ERROR_STOP=1 < portfolio-1-database-design/02_sample_data.sql
-docker compose exec -T postgres psql -U library_admin -d upln < portfolio-1-database-design/03_constraint_tests.sql
-docker compose exec -T postgres psql -U library_admin -d upln -v ON_ERROR_STOP=1 < portfolio-1-database-design/04_security_privacy.sql
-docker compose exec -T postgres psql -U library_admin -d upln < portfolio-1-database-design/05_security_tests.sql
-docker compose exec -T postgres psql -U library_admin -d upln -v ON_ERROR_STOP=1 < portfolio-1-database-design/06_audit_log.sql
-docker compose exec -T postgres psql -U library_admin -d upln < portfolio-1-database-design/06b_audit_demo.sql
-docker compose exec -T postgres psql -U library_admin -d upln < portfolio-1-database-design/07_audit_tests.sql
-docker compose exec -T postgres psql -U library_admin -d upln -v ON_ERROR_STOP=1 < portfolio-1-database-design/08_payment_guard.sql
-docker compose exec -T postgres psql -U library_admin -d upln < portfolio-1-database-design/08b_payment_guard_tests.sql
-bash portfolio-1-database-design/09b_login_tests.sh
-bash portfolio-1-database-design/10b_run_encryption.sh
-docker compose exec -T postgres psql -U library_admin -d upln < portfolio-1-database-design/11_sql_injection_demo.sql
+docker compose -f Akosa_Antonella_301929153_docker-compose.yml exec -T postgres psql -U library_admin -d upln -v ON_ERROR_STOP=1 < portfolio-1-database-design/Akosa_Antonella_301929153_P1_01_schema.sql
+docker compose -f Akosa_Antonella_301929153_docker-compose.yml exec -T postgres psql -U library_admin -d upln -v ON_ERROR_STOP=1 < portfolio-1-database-design/Akosa_Antonella_301929153_P1_02_sample_data.sql
+docker compose -f Akosa_Antonella_301929153_docker-compose.yml exec -T postgres psql -U library_admin -d upln < portfolio-1-database-design/Akosa_Antonella_301929153_P1_03_constraint_tests.sql
+docker compose -f Akosa_Antonella_301929153_docker-compose.yml exec -T postgres psql -U library_admin -d upln -v ON_ERROR_STOP=1 < portfolio-1-database-design/Akosa_Antonella_301929153_P1_04_security_privacy.sql
+docker compose -f Akosa_Antonella_301929153_docker-compose.yml exec -T postgres psql -U library_admin -d upln < portfolio-1-database-design/Akosa_Antonella_301929153_P1_05_security_tests.sql
+docker compose -f Akosa_Antonella_301929153_docker-compose.yml exec -T postgres psql -U library_admin -d upln -v ON_ERROR_STOP=1 < portfolio-1-database-design/Akosa_Antonella_301929153_P1_06_audit_log.sql
+docker compose -f Akosa_Antonella_301929153_docker-compose.yml exec -T postgres psql -U library_admin -d upln < portfolio-1-database-design/Akosa_Antonella_301929153_P1_06b_audit_demo.sql
+docker compose -f Akosa_Antonella_301929153_docker-compose.yml exec -T postgres psql -U library_admin -d upln < portfolio-1-database-design/Akosa_Antonella_301929153_P1_07_audit_tests.sql
+docker compose -f Akosa_Antonella_301929153_docker-compose.yml exec -T postgres psql -U library_admin -d upln -v ON_ERROR_STOP=1 < portfolio-1-database-design/Akosa_Antonella_301929153_P1_08_payment_guard.sql
+docker compose -f Akosa_Antonella_301929153_docker-compose.yml exec -T postgres psql -U library_admin -d upln < portfolio-1-database-design/Akosa_Antonella_301929153_P1_08b_payment_guard_tests.sql
+bash portfolio-1-database-design/Akosa_Antonella_301929153_P1_09b_login_tests.sh
+bash portfolio-1-database-design/Akosa_Antonella_301929153_P1_10b_run_encryption.sh
+docker compose -f Akosa_Antonella_301929153_docker-compose.yml exec -T postgres psql -U library_admin -d upln < portfolio-1-database-design/Akosa_Antonella_301929153_P1_11_sql_injection_demo.sql
 ```
 
-The sequence is necessary because later tests depend on tables, roles, functions or triggers established in earlier stages. The audit demonstration, `06b_audit_demo.sql`, performs four sample changes that generate persistent entries in `audit_log`. By contrast, the authentication and encryption test runners generate their demonstration credentials and keys during execution rather than placing those values in the repository. The separate static development password described in Section 7.10 is a known limitation of this laboratory configuration.
+The sequence is necessary because later tests depend on tables, roles, functions or triggers established in earlier stages. The audit demonstration, `Akosa_Antonella_301929153_P1_06b_audit_demo.sql`, performs four sample changes that generate persistent entries in `audit_log`. By contrast, the authentication and encryption test runners generate their demonstration credentials and keys during execution rather than placing those values in the repository. The separate static development password described in Section 7.10 is a known limitation of this laboratory configuration.
 
-**Reset and repeatability.** The scripts are intended for a disposable synthetic test environment. Rerunning `01_schema.sql` drops and recreates the 15 core tables, so it is **destructive** to data already held in those tables. Following a schema reset, the relevant security, audit, payment and encryption scripts must be executed again to restore their dependencies. This procedure must not be used on a database containing records that need to be preserved.
+**Reset and repeatability.** The scripts are intended for a disposable synthetic test environment. Rerunning `Akosa_Antonella_301929153_P1_01_schema.sql` drops and recreates the 15 core tables, so it is **destructive** to data already held in those tables. Following a schema reset, the relevant security, audit, payment and encryption scripts must be executed again to restore their dependencies. This procedure must not be used on a database containing records that need to be preserved.
 
 The diagram can be regenerated using the PostgreSQL client and Graphviz. The commands below reflect the supplied laboratory configuration:
 
 ```bash
 sudo apt-get update && sudo apt-get install -y postgresql-client graphviz
 cd portfolio-1-database-design
-PGHOST=localhost PGUSER=library_admin PGPASSWORD=library_dev_pw PGDATABASE=upln python3 build_er_diagram.py
+PGHOST=localhost PGUSER=library_admin PGPASSWORD=library_dev_pw PGDATABASE=upln python3 Akosa_Antonella_301929153_P1_build_er_diagram.py
 ```
 
 ### 6.2 Test Procedures and Recorded Outcomes
@@ -293,13 +293,13 @@ The controls and their associated implementation files are mapped below.
 
 | Security area | Implemented component | Section | Relevant scripts |
 |---|---|---|---|
-| Authorisation and least privilege | Role-based and column-level permissions, separation of duties | 7.1 | `04_security_privacy.sql`, `05_security_tests.sql` |
-| Data minimisation and controlled disclosure | Masked reporting views, row-level security and audit-field redaction | 7.2, 7.3, 7.5 | `04_security_privacy.sql`, `06_audit_log.sql` |
-| Auditability | Trigger-based audit log with restrictions on alteration | 7.5 | `06_audit_log.sql`, `07_audit_tests.sql` |
-| Financial integrity | Fine-payment validation trigger and row locking | 7.6 | `08_payment_guard.sql`, `08b_payment_guard_tests.sql` |
-| Authentication | Demonstration login accounts and SCRAM-SHA-256 authentication | 7.7 | `09_authentication.sql`, `09b_login_tests.sh` |
-| Encryption and password hashing | Encrypted identity number and salted password-hash demonstration | 7.8 | `10_encryption.sql`, `10b_run_encryption.sh` |
-| Injection prevention | Parameterised queries and restricted-role tests | 7.9 | `11_sql_injection_demo.sql` |
+| Authorisation and least privilege | Role-based and column-level permissions, separation of duties | 7.1 | `Akosa_Antonella_301929153_P1_04_security_privacy.sql`, `Akosa_Antonella_301929153_P1_05_security_tests.sql` |
+| Data minimisation and controlled disclosure | Masked reporting views, row-level security and audit-field redaction | 7.2, 7.3, 7.5 | `Akosa_Antonella_301929153_P1_04_security_privacy.sql`, `Akosa_Antonella_301929153_P1_06_audit_log.sql` |
+| Auditability | Trigger-based audit log with restrictions on alteration | 7.5 | `Akosa_Antonella_301929153_P1_06_audit_log.sql`, `Akosa_Antonella_301929153_P1_07_audit_tests.sql` |
+| Financial integrity | Fine-payment validation trigger and row locking | 7.6 | `Akosa_Antonella_301929153_P1_08_payment_guard.sql`, `Akosa_Antonella_301929153_P1_08b_payment_guard_tests.sql` |
+| Authentication | Demonstration login accounts and SCRAM-SHA-256 authentication | 7.7 | `Akosa_Antonella_301929153_P1_09_authentication.sql`, `Akosa_Antonella_301929153_P1_09b_login_tests.sh` |
+| Encryption and password hashing | Encrypted identity number and salted password-hash demonstration | 7.8 | `Akosa_Antonella_301929153_P1_10_encryption.sql`, `Akosa_Antonella_301929153_P1_10b_run_encryption.sh` |
+| Injection prevention | Parameterised queries and restricted-role tests | 7.9 | `Akosa_Antonella_301929153_P1_11_sql_injection_demo.sql` |
 | Recovery and monitoring | Outside Portfolio 1's implementation scope; separate laboratory exercises in Portfolio 5 | 7.10 | — |
 
 ### 7.1 Role-Based Access Control and Least Privilege
@@ -337,13 +337,13 @@ The documented tests confirm that sessions configured for members 1 and 7 return
 
 ### 7.4 Authorisation Test Results
 
-The `05_security_tests.sql` script executed 14 permission checks, all recorded as passing. The tests included attempts to perform restricted operations, such as deleting loan records without sufficient privileges and waiving fines using a role not authorised for that function. Corresponding authorised operations were tested to distinguish correct permission grants from blanket denial of access.
+The `Akosa_Antonella_301929153_P1_05_security_tests.sql` script executed 14 permission checks, all recorded as passing. The tests included attempts to perform restricted operations, such as deleting loan records without sufficient privileges and waiving fines using a role not authorised for that function. Corresponding authorised operations were tested to distinguish correct permission grants from blanket denial of access.
 
 I also checked whether the test harness could recognise an incorrect expected outcome. Two deliberately incorrect expectations produced `FAIL`, providing additional confidence that the harness was not simply marking every operation as successful. The recorded results and RLS demonstrations are included in the evidence directory.
 
 ### 7.5 Audit Logging and Tamper Resistance
 
-The audit-control design records database modifications so that changes can be associated with the affected table, record and available session context. The `06_audit_log.sql` script introduces the `audit_log` table and trigger-based recording for the core operational tables, including `member`, `staff`, `loan`, `fine`, `payment`, `copy` and `reservation`. The encryption activity extends audit handling to `member_identity`.
+The audit-control design records database modifications so that changes can be associated with the affected table, record and available session context. The `Akosa_Antonella_301929153_P1_06_audit_log.sql` script introduces the `audit_log` table and trigger-based recording for the core operational tables, including `member`, `staff`, `loan`, `fine`, `payment`, `copy` and `reservation`. The encryption activity extends audit handling to `member_identity`.
 
 For recorded insert, update and delete events, the audit record includes the event time, affected table and row, database login context, active role, application-supplied staff identifier (`app.staff_id`), changed fields and relevant old/new values represented as JSON. The following design decisions address the usefulness and limits of this audit trail:
 
@@ -353,23 +353,23 @@ For recorded insert, update and delete events, the audit record includes the eve
 
 **Implementation defect and resolution.** During testing, the initial audit implementation recorded the `SECURITY DEFINER` function owner's identity as the acting role. I traced this to the privilege context under which the function executes and revised the audit logic to obtain the role from the session's role setting. Subsequent tests checked that the intended role was recorded. This issue was discovered through execution of the tests rather than assumed to be correct from the script definition alone.
 
-The `07_audit_tests.sql` script completed 18 checks covering recorded activity, sensitive-field redaction, permitted access and rejection of alteration attempts. These tests were executed within a transaction that was rolled back, preventing their test modifications from remaining as operational records. To validate the test harness, I also deliberately disabled selected protections in a scratch environment; six tests then reported `FAIL`. The audit demonstration and results are recorded in `evidence/07_audit_log_demo.png` and `evidence/08_audit_tests.png`.
+The `Akosa_Antonella_301929153_P1_07_audit_tests.sql` script completed 18 checks covering recorded activity, sensitive-field redaction, permitted access and rejection of alteration attempts. These tests were executed within a transaction that was rolled back, preventing their test modifications from remaining as operational records. To validate the test harness, I also deliberately disabled selected protections in a scratch environment; six tests then reported `FAIL`. The audit demonstration and results are recorded in `evidence/Akosa_Antonella_301929153_P1_07_audit_log_demo.png` and `evidence/Akosa_Antonella_301929153_P1_08_audit_tests.png`.
 
 ### 7.6 Fine-Payment Integrity Control
 
-The `08_payment_guard.sql` script implements a trigger on the `payment` table to validate fine payments against the corresponding outstanding balance and fine status. The control rejects payments that would exceed the amount owed and payments relating to waived fines. Referential-integrity constraints also prevent payments from referencing a fine that does not exist.
+The `Akosa_Antonella_301929153_P1_08_payment_guard.sql` script implements a trigger on the `payment` table to validate fine payments against the corresponding outstanding balance and fine status. The control rejects payments that would exceed the amount owed and payments relating to waived fines. Referential-integrity constraints also prevent payments from referencing a fine that does not exist.
 
 For concurrent payment processing, the trigger acquires a row-level lock on the related fine before validating the amount. Transactions attempting to pay the same fine must therefore perform the relevant balance checks in sequence, rather than both proceeding against an unchanged outstanding balance. This is necessary because a valid individual payment could otherwise contribute to an invalid cumulative total.
 
-The `08b_payment_guard_tests.sql` script recorded **six successful checks**, including a scenario in which multiple payments would collectively exceed the fine balance. A separate concurrent-session experiment in Portfolio 3 examines the two-cashier scenario and the effect of the row-level lock under simultaneous execution.
+The `Akosa_Antonella_301929153_P1_08b_payment_guard_tests.sql` script recorded **six successful checks**, including a scenario in which multiple payments would collectively exceed the fine balance. A separate concurrent-session experiment in Portfolio 3 examines the two-cashier scenario and the effect of the row-level lock under simultaneous execution.
 
 ### 7.7 Database Authentication
 
-The access-control roles define permissions but do not, by themselves, establish individual login identities. To test authentication separately from authorisation, `09_authentication.sql` creates two PostgreSQL login accounts: `staff_amina`, associated with librarian privileges, and `auditor_ngozi`, associated with the auditor role. Neither demonstration account has superuser privileges or permission to create roles or databases.
+The access-control roles define permissions but do not, by themselves, establish individual login identities. To test authentication separately from authorisation, `Akosa_Antonella_301929153_P1_09_authentication.sql` creates two PostgreSQL login accounts: `staff_amina`, associated with librarian privileges, and `auditor_ngozi`, associated with the auditor role. Neither demonstration account has superuser privileges or permission to create roles or databases.
 
 The implementation and tests cover three aspects of database authentication:
 
-- **Credential handling:** `09b_login_tests.sh` generates demonstration passwords during execution rather than committing them to the repository. PostgreSQL uses salted SCRAM-SHA-256 password verifiers for the login accounts. The configured passwords expire on 30 June 2027.
+- **Credential handling:** `Akosa_Antonella_301929153_P1_09b_login_tests.sh` generates demonstration passwords during execution rather than committing them to the repository. PostgreSQL uses salted SCRAM-SHA-256 password verifiers for the login accounts. The configured passwords expire on 30 June 2027.
 - **Authentication outcomes:** The script attempts database connections using valid and invalid credentials. Invalid credentials are rejected with `FATAL: password authentication failed`, while successful authentication permits the user to establish a session.
 - **Authorisation after login:** Successful login does not override assigned database privileges. The librarian account is denied attempts to delete loan records or read the audit log; the auditor can inspect the audit trail, including the recorded login identity associated with the demonstration activity.
 
@@ -377,7 +377,7 @@ The `pg_hba.conf` evidence also distinguishes network connections that require `
 
 ### 7.8 Sensitive-Data Encryption and Password Hashing
 
-I used PostgreSQL's `pgcrypto` extension in `10_encryption.sql` to demonstrate protection of a sensitive member attribute. The `member_identity` table stores a synthetic National Identification Number (NIN) in encrypted form using `pgp_sym_encrypt`, with AES-256 selected in the implementation. A separate `nin_last4` attribute provides limited identification information for authorised front-desk use without exposing the full identifier.
+I used PostgreSQL's `pgcrypto` extension in `Akosa_Antonella_301929153_P1_10_encryption.sql` to demonstrate protection of a sensitive member attribute. The `member_identity` table stores a synthetic National Identification Number (NIN) in encrypted form using `pgp_sym_encrypt`, with AES-256 selected in the implementation. A separate `nin_last4` attribute provides limited identification information for authorised front-desk use without exposing the full identifier.
 
 The ten recorded tests cover whether the original identifier is absent from the stored ciphertext, correct-key decryption, rejection of an incorrect key, different ciphertext outputs for repeated encryption of the same value, restricted display of the final four digits, denial of unauthorised table access, audit redaction and password hashing. The password-hashing demonstration uses a randomly salted bcrypt hash and verifies both successful and unsuccessful password checks.
 
@@ -387,7 +387,7 @@ The test environment did **not** enable TLS for its Portfolio 1 database connect
 
 ### 7.9 SQL Injection and Defence-in-Depth Testing
 
-The `11_sql_injection_demo.sql` script contrasts a query constructed by concatenating user-controlled input with a parameterised implementation. In the vulnerable version, the input `x' OR '1'='1` changes the logic of the search condition and returns all eight members instead of the intended match. A separate `UNION`-based input demonstrates how an unsafe query can expose staff email addresses when executed under a role with sufficient access.
+The `Akosa_Antonella_301929153_P1_11_sql_injection_demo.sql` script contrasts a query constructed by concatenating user-controlled input with a parameterised implementation. In the vulnerable version, the input `x' OR '1'='1` changes the logic of the search condition and returns all eight members instead of the intended match. A separate `UNION`-based input demonstrates how an unsafe query can expose staff email addresses when executed under a role with sufficient access.
 
 In the corrected implementation, the input is passed as a bound parameter rather than incorporated into SQL syntax. The same test inputs are therefore treated as search values, and the recorded results change from **1, 8 and 8** rows in the unsafe demonstration to **1, 0 and 0** in the parameterised version.
 
@@ -402,7 +402,7 @@ The following distinctions identify controls demonstrated in Portfolio 1 and tho
 | Topic | Implemented position and limitation |
 |---|---|
 | **Database roles and logins** | Operational group roles do not provide login access. Two additional demonstration login accounts are created for authentication testing; the laboratory administrator account is separate |
-| **Static laboratory password** | `docker-compose.yml` contains the demonstration password `library_dev_pw`. This is a weakness accepted only within the disposable, synthetic laboratory configuration and must not be reused in an operational environment |
+| **Static laboratory password** | `Akosa_Antonella_301929153_docker-compose.yml` contains the demonstration password `library_dev_pw`. This is a weakness accepted only within the disposable, synthetic laboratory configuration and must not be reused in an operational environment |
 | **Connection and storage encryption** | Selected column encryption is demonstrated, but TLS and full-disk encryption are not enabled in this Portfolio 1 database. Production deployment would require both transport and appropriate storage protection |
 | **Monitoring and alerting** | Audit records support retrospective review, but live alerting was not implemented. Production monitoring would require collection and analysis of database and audit events |
 | **Backup and recovery** | Backup, point-in-time recovery, replication and failover are not Portfolio 1 test results; these are addressed in separate laboratory activities in Portfolio 5 |
@@ -414,12 +414,12 @@ The following distinctions identify controls demonstrated in Portfolio 1 and tho
 
 | Test script | Scope | Recorded outcome |
 |---|---|---|
-| `03_constraint_tests.sql` | 18 integrity and business-rule tests | All passed |
-| `05_security_tests.sql` | 14 permission tests | All passed |
-| `07_audit_tests.sql` | 18 audit-control tests | All passed |
-| `08b_payment_guard_tests.sql` | Six payment-integrity tests | All passed |
-| `10_encryption.sql` | Ten encryption and hashing tests | All passed |
-| `09b_login_tests.sh` and `11_sql_injection_demo.sql` | Authentication and injection demonstrations | Outcomes recorded in Sections 7.7 and 7.9 and the corresponding screenshots |
+| `Akosa_Antonella_301929153_P1_03_constraint_tests.sql` | 18 integrity and business-rule tests | All passed |
+| `Akosa_Antonella_301929153_P1_05_security_tests.sql` | 14 permission tests | All passed |
+| `Akosa_Antonella_301929153_P1_07_audit_tests.sql` | 18 audit-control tests | All passed |
+| `Akosa_Antonella_301929153_P1_08b_payment_guard_tests.sql` | Six payment-integrity tests | All passed |
+| `Akosa_Antonella_301929153_P1_10_encryption.sql` | Ten encryption and hashing tests | All passed |
+| `Akosa_Antonella_301929153_P1_09b_login_tests.sh` and `Akosa_Antonella_301929153_P1_11_sql_injection_demo.sql` | Authentication and injection demonstrations | Outcomes recorded in Sections 7.7 and 7.9 and the corresponding screenshots |
 
 ---
 
@@ -429,18 +429,18 @@ The [`evidence/`](evidence/) directory contains screenshots of script execution 
 
 | Evidence file | Recorded content |
 |---|---|
-| [`01_tables_created.png`](evidence/01_tables_created.png) | `\dt` output showing the 15 core tables before the additional security tables were created |
-| [`02_sample_data_loaded.png`](evidence/02_sample_data_loaded.png) | Row counts following sample-data loading |
-| [`03_constraint_tests.png`](evidence/03_constraint_tests.png) | Results of the 18 constraint tests |
-| [`04_fine_balance_view.png`](evidence/04_fine_balance_view.png) | Output from `SELECT * FROM v_fine_balance;` |
-| [`05_security_tests.png`](evidence/05_security_tests.png) | Results of the 14 permission tests |
-| [`06_row_level_security.png`](evidence/06_row_level_security.png) | RLS results for configured member identities, an unset identity and a permitted staff role |
-| [`07_audit_log_demo.png`](evidence/07_audit_log_demo.png) | Recorded audit activity, auditor access and rejected tampering attempt |
-| [`08_audit_tests.png`](evidence/08_audit_tests.png) | Results of the 18 audit tests |
-| [`09_payment_guard_tests.png`](evidence/09_payment_guard_tests.png) | Results of the six payment-integrity tests |
-| [`10_authentication_a.png`](evidence/10_authentication_a.png) and [`10_authentication_b.png`](evidence/10_authentication_b.png) | Authentication configuration, failed and successful login attempts, permission checks and logged identity |
-| [`11_encryption.png`](evidence/11_encryption.png) | Encrypted attribute, hashing checks, ten test results and TLS-status check |
-| [`12_sql_injection_a.png`](evidence/12_sql_injection_a.png) and [`12_sql_injection_b.png`](evidence/12_sql_injection_b.png) | Unsafe and parameterised query results and restricted-role denial |
+| [`Akosa_Antonella_301929153_P1_01_tables_created.png`](evidence/Akosa_Antonella_301929153_P1_01_tables_created.png) | `\dt` output showing the 15 core tables before the additional security tables were created |
+| [`Akosa_Antonella_301929153_P1_02_sample_data_loaded.png`](evidence/Akosa_Antonella_301929153_P1_02_sample_data_loaded.png) | Row counts following sample-data loading |
+| [`Akosa_Antonella_301929153_P1_03_constraint_tests.png`](evidence/Akosa_Antonella_301929153_P1_03_constraint_tests.png) | Results of the 18 constraint tests |
+| [`Akosa_Antonella_301929153_P1_04_fine_balance_view.png`](evidence/Akosa_Antonella_301929153_P1_04_fine_balance_view.png) | Output from `SELECT * FROM v_fine_balance;` |
+| [`Akosa_Antonella_301929153_P1_05_security_tests.png`](evidence/Akosa_Antonella_301929153_P1_05_security_tests.png) | Results of the 14 permission tests |
+| [`Akosa_Antonella_301929153_P1_06_row_level_security.png`](evidence/Akosa_Antonella_301929153_P1_06_row_level_security.png) | RLS results for configured member identities, an unset identity and a permitted staff role |
+| [`Akosa_Antonella_301929153_P1_07_audit_log_demo.png`](evidence/Akosa_Antonella_301929153_P1_07_audit_log_demo.png) | Recorded audit activity, auditor access and rejected tampering attempt |
+| [`Akosa_Antonella_301929153_P1_08_audit_tests.png`](evidence/Akosa_Antonella_301929153_P1_08_audit_tests.png) | Results of the 18 audit tests |
+| [`Akosa_Antonella_301929153_P1_09_payment_guard_tests.png`](evidence/Akosa_Antonella_301929153_P1_09_payment_guard_tests.png) | Results of the six payment-integrity tests |
+| [`Akosa_Antonella_301929153_P1_10_authentication_a.png`](evidence/Akosa_Antonella_301929153_P1_10_authentication_a.png) and [`Akosa_Antonella_301929153_P1_10_authentication_b.png`](evidence/Akosa_Antonella_301929153_P1_10_authentication_b.png) | Authentication configuration, failed and successful login attempts, permission checks and logged identity |
+| [`Akosa_Antonella_301929153_P1_11_encryption.png`](evidence/Akosa_Antonella_301929153_P1_11_encryption.png) | Encrypted attribute, hashing checks, ten test results and TLS-status check |
+| [`Akosa_Antonella_301929153_P1_12_sql_injection_a.png`](evidence/Akosa_Antonella_301929153_P1_12_sql_injection_a.png) and [`Akosa_Antonella_301929153_P1_12_sql_injection_b.png`](evidence/Akosa_Antonella_301929153_P1_12_sql_injection_b.png) | Unsafe and parameterised query results and restricted-role denial |
 
 ---
 

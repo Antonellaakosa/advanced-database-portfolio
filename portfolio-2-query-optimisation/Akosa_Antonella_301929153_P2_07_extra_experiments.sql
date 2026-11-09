@@ -1,10 +1,10 @@
 -- =====================================================================
 -- Unity Public Library Network (UPLN)  |  MIT 8103  |  Portfolio 2
--- File    : 07_extra_experiments.sql
+-- File    : Akosa_Antonella_301929153_P2_07_extra_experiments.sql
 -- Purpose : Seven small experiments that show HOW and WHY the optimiser
 --           behaves as it does (the "advanced concepts" of this portfolio).
--- Run     : psql -U library_admin -d upln_perf -f 07_extra_experiments.sql
--- Requires: 01_generate_data.sql and 05_create_indexes.sql already run.
+-- Run     : psql -U library_admin -d upln_perf -f Akosa_Antonella_301929153_P2_07_extra_experiments.sql
+-- Requires: Akosa_Antonella_301929153_P2_01_generate_data.sql and Akosa_Antonella_301929153_P2_05_create_indexes.sql already run.
 -- Safe    : Experiments use scratch copies (exp_*). Everything is dropped at
 --           the end. Re-runnable. Takes about 1 to 2 minutes.
 -- =====================================================================

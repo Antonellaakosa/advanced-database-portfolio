@@ -1,11 +1,11 @@
 -- =====================================================================
 -- Unity Public Library Network (UPLN)  |  MIT 8103  |  Portfolio 1 (extension)
--- File    : 05_security_tests.sql
--- Purpose : Proves the access rules in 04_security_privacy.sql really work.
+-- File    : Akosa_Antonella_301929153_P1_05_security_tests.sql
+-- Purpose : Proves the access rules in Akosa_Antonella_301929153_P1_04_security_privacy.sql really work.
 --           Each test switches to a role (SET ROLE) and then tries something.
 --           Nothing is permanently changed: allowed changes are undone.
--- Run     : psql -U library_admin -d upln -f 05_security_tests.sql
--- Requires: 01_schema.sql, 02_sample_data.sql, 04_security_privacy.sql
+-- Run     : psql -U library_admin -d upln -f Akosa_Antonella_301929153_P1_05_security_tests.sql
+-- Requires: Akosa_Antonella_301929153_P1_01_schema.sql, Akosa_Antonella_301929153_P1_02_sample_data.sql, Akosa_Antonella_301929153_P1_04_security_privacy.sql
 -- =====================================================================
 
 -- Helper 1: the statement must be REFUSED because of missing permission.

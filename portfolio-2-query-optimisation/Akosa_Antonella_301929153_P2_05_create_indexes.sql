@@ -1,8 +1,8 @@
 -- =====================================================================
 -- Unity Public Library Network (UPLN)  |  MIT 8103  |  Portfolio 2
--- File    : 05_create_indexes.sql
+-- File    : Akosa_Antonella_301929153_P2_05_create_indexes.sql
 -- Purpose : The optimisations. Each one targets a specific slow query.
--- Run     : psql -U library_admin -d upln_perf -v ON_ERROR_STOP=1 -f 05_create_indexes.sql
+-- Run     : psql -U library_admin -d upln_perf -v ON_ERROR_STOP=1 -f Akosa_Antonella_301929153_P2_05_create_indexes.sql
 -- Safe to re-run (it drops and recreates the objects it adds).
 -- =====================================================================
 SET client_min_messages = warning;
@@ -32,7 +32,7 @@ CREATE INDEX idx_copy_title_status ON copy (title_id, status) INCLUDE (copy_id, 
 
 -- Q7  Date range over a table that is stored in date order. A BRIN index keeps only
 --     the min/max date per block of rows, so it is tiny (compare with a B-tree in
---     07_extra_experiments.sql).
+--     Akosa_Antonella_301929153_P2_07_extra_experiments.sql).
 CREATE INDEX idx_loan_loaned_at_brin ON loan USING brin (loaned_at);
 
 -- Q8  Titles by author: the primary key of title_author starts with title_id, so

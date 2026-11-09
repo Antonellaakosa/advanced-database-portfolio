@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 # =====================================================================
 # Unity Public Library Network (UPLN) | MIT 8103 | Portfolio 3
-# File    : 05_deadlock.sh
+# File    : Akosa_Antonella_301929153_P3_05_deadlock.sh
 # Purpose : A deadlock: two staff each hold one copy's row and wait for the
 #           other's. PostgreSQL detects the cycle and cancels one of them.
 #   Part 1  Opposite lock order  -> deadlock
 #   Part 2  Same lock order      -> no deadlock (the standard fix)
-# Run     : bash portfolio-3-transactions-concurrency/05_deadlock.sh   (from the repo root)
-# Requires: 00_setup.sh
+# Run     : bash portfolio-3-transactions-concurrency/Akosa_Antonella_301929153_P3_05_deadlock.sh   (from the repo root)
+# Requires: Akosa_Antonella_301929153_P3_00_setup.sh
 # =====================================================================
 set -u
-source "$(dirname "$0")/lib.sh"
+source "$(dirname "$0")/Akosa_Antonella_301929153_P3_lib.sh"
 S=deadlock
 sql "DELETE FROM p3_results WHERE scenario='$S'" > /dev/null
 fixture() { sql "SELECT p3_cleanup(); SELECT p3_copy('P3-DL-1'); SELECT p3_copy('P3-DL-2');" > /dev/null; }

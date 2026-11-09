@@ -1,13 +1,13 @@
 -- =====================================================================
 -- Unity Public Library Network (UPLN)  |  MIT 8103  |  Portfolio 1 (security)
--- File    : 11_sql_injection_demo.sql
+-- File    : Akosa_Antonella_301929153_P1_11_sql_injection_demo.sql
 -- Purpose : SQL INJECTION, the attack where user input is glued into a SQL
 --           command and the input itself contains SQL.
 --           Part A shows an UNSAFE search (text concatenation) being attacked.
 --           Part B shows the SAFE search (bound parameter) resisting it.
 --           Part C shows DEFENCE IN DEPTH: even when the unsafe code is
 --           attacked, the member-app role is stopped by least privilege.
--- Run     : psql -U library_admin -d upln -f 11_sql_injection_demo.sql
+-- Run     : psql -U library_admin -d upln -f Akosa_Antonella_301929153_P1_11_sql_injection_demo.sql
 -- Safe    : The vulnerable function exists only for this session (pg_temp)
 --           and disappears when the script ends. Nothing is changed.
 -- Requires: 01 .. 05

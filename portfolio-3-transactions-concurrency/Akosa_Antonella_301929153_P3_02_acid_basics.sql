@@ -1,14 +1,14 @@
 -- =====================================================================
 -- Unity Public Library Network (UPLN)  |  MIT 8103  |  Portfolio 3
--- File    : 02_acid_basics.sql
+-- File    : Akosa_Antonella_301929153_P3_02_acid_basics.sql
 -- Purpose : ACID, one property at a time, on the real borrow operation.
 --           A  Atomicity   - a borrow is two writes (loan + copy status): all or nothing
 --           B  Atomicity   - the same failure, protected by a transaction
 --           C  Savepoint   - undo one part of a transaction, keep the rest
 --           D  Consistency - the database refuses data that breaks the rules
 --           E  Durability  - a COMMIT is written to the write-ahead log first
--- Run     : docker compose exec -T postgres psql -U library_admin -d upln_tx < portfolio-3-transactions-concurrency/02_acid_basics.sql
--- Requires: 00_setup.sh
+-- Run     : docker compose -f Akosa_Antonella_301929153_docker-compose.yml exec -T postgres psql -U library_admin -d upln_tx < portfolio-3-transactions-concurrency/Akosa_Antonella_301929153_P3_02_acid_basics.sql
+-- Requires: Akosa_Antonella_301929153_P3_00_setup.sh
 -- =====================================================================
 \set ON_ERROR_STOP off
 \pset pager off

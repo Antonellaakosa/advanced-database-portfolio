@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # =====================================================================
 # UPLN | MIT 8103 | Portfolio 5
-# File    : 00_make_certs.sh
+# File    : Akosa_Antonella_301929153_P5_00_make_certs.sh
 # Purpose : Creates (1) a private certificate authority and one server
 #           certificate for the lab nodes, so every connection can use TLS,
 #           and (2) random passwords in .env.p5.
 #           Both are listed in .gitignore: secrets never go into GitHub.
-# Run     : bash portfolio-5-distributed-cloud/00_make_certs.sh
+# Run     : bash portfolio-5-distributed-cloud/Akosa_Antonella_301929153_P5_00_make_certs.sh
 # =====================================================================
 set -eu
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

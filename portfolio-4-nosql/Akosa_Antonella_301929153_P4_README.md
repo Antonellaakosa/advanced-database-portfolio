@@ -20,35 +20,35 @@ Using PostgreSQL for transactional records and MongoDB for catalogue data illust
 
 | File | What it does |
 |---|---|
-| `docker-compose.mongo.yml`, `00_start_mongo.sh` | Starts MongoDB 7 in Docker |
-| `01_export_from_postgres.sh` | Reads the catalogue from PostgreSQL and turns each title into one document (`data/migrated_titles.js`) |
-| `02_schema_validation.js` | Creates the `titles` collection with validation rules and tests them |
-| `03_load_migrated.js` | Loads the 10 migrated titles |
-| `04_generate_data.js` | Adds 100,000 generated titles and 50,000 reviews (fixed seed, same every run) |
-| `05_queries.js` | Find, update, upsert, delete and bulk operations |
-| `06_aggregation.js` | Group, unwind, bucket, lookup, facet and merge |
-| `07_indexes_explain.js` | Indexes and explain plans, before and after |
-| `08_modelling_patterns.js` | Embedding vs referencing, computed and subset patterns |
-| `09_reconcile.sh` | Checks PostgreSQL and MongoDB agree after the migration |
-| `11_other_nosql_models.js` | Key-value sessions (with a basket field), wide-column (branch-day counters) and graph (linked titles) examples |
-| `12_secure_mongo.sh`, `docker-compose.mongo-secure.yml` | A second, password-protected MongoDB, and tests that try to get past it |
-| `13_media_formats.js` | One title of each format (book, e-book, audiobook, DVD, magazine) with its own fields, queried and validated |
-| `10_run_all_tests.sh` | Runs everything and prints one summary table |
+| `Akosa_Antonella_301929153_P4_docker-compose.mongo.yml`, `Akosa_Antonella_301929153_P4_00_start_mongo.sh` | Starts MongoDB 7 in Docker |
+| `Akosa_Antonella_301929153_P4_01_export_from_postgres.sh` | Reads the catalogue from PostgreSQL and turns each title into one document (`data/Akosa_Antonella_301929153_P4_migrated_titles.js`) |
+| `Akosa_Antonella_301929153_P4_02_schema_validation.js` | Creates the `titles` collection with validation rules and tests them |
+| `Akosa_Antonella_301929153_P4_03_load_migrated.js` | Loads the 10 migrated titles |
+| `Akosa_Antonella_301929153_P4_04_generate_data.js` | Adds 100,000 generated titles and 50,000 reviews (fixed seed, same every run) |
+| `Akosa_Antonella_301929153_P4_05_queries.js` | Find, update, upsert, delete and bulk operations |
+| `Akosa_Antonella_301929153_P4_06_aggregation.js` | Group, unwind, bucket, lookup, facet and merge |
+| `Akosa_Antonella_301929153_P4_07_indexes_explain.js` | Indexes and explain plans, before and after |
+| `Akosa_Antonella_301929153_P4_08_modelling_patterns.js` | Embedding vs referencing, computed and subset patterns |
+| `Akosa_Antonella_301929153_P4_09_reconcile.sh` | Checks PostgreSQL and MongoDB agree after the migration |
+| `Akosa_Antonella_301929153_P4_11_other_nosql_models.js` | Key-value sessions (with a basket field), wide-column (branch-day counters) and graph (linked titles) examples |
+| `Akosa_Antonella_301929153_P4_12_secure_mongo.sh`, `Akosa_Antonella_301929153_P4_docker-compose.mongo-secure.yml` | A second, password-protected MongoDB, and tests that try to get past it |
+| `Akosa_Antonella_301929153_P4_13_media_formats.js` | One title of each format (book, e-book, audiobook, DVD, magazine) with its own fields, queried and validated |
+| `Akosa_Antonella_301929153_P4_10_run_all_tests.sh` | Runs everything and prints one summary table |
 | `evidence/` | Screenshots from my own runs |
 
 ## 3. Execution Procedure
 
-I used the following commands from the repository root, with Docker running and the Portfolio 1 PostgreSQL container started (`docker compose up -d`):
+I used the following commands from the repository root, with Docker running and the Portfolio 1 PostgreSQL container started (`docker compose -f Akosa_Antonella_301929153_docker-compose.yml up -d`):
 
 ```bash
-bash portfolio-4-nosql/00_start_mongo.sh
-bash portfolio-4-nosql/01_export_from_postgres.sh
-docker exec -w /p4 upln_mongo mongosh --quiet upln_nosql --file 02_schema_validation.js
+bash portfolio-4-nosql/Akosa_Antonella_301929153_P4_00_start_mongo.sh
+bash portfolio-4-nosql/Akosa_Antonella_301929153_P4_01_export_from_postgres.sh
+docker exec -w /p4 upln_mongo mongosh --quiet upln_nosql --file Akosa_Antonella_301929153_P4_02_schema_validation.js
 # ...and the same line for 03 to 08 and 11, then:
-bash portfolio-4-nosql/09_reconcile.sh
+bash portfolio-4-nosql/Akosa_Antonella_301929153_P4_09_reconcile.sh
 ```
 
-I used `bash portfolio-4-nosql/10_run_all_tests.sh` to run the scripted checks and obtain the summary. The hardened MongoDB test is separate and optional: `bash portfolio-4-nosql/12_secure_mongo.sh`. Each script clears its earlier output before rerunning.
+I used `bash portfolio-4-nosql/Akosa_Antonella_301929153_P4_10_run_all_tests.sh` to run the scripted checks and obtain the summary. The hardened MongoDB test is separate and optional: `bash portfolio-4-nosql/Akosa_Antonella_301929153_P4_12_secure_mongo.sh`. Each script clears its earlier output before rerunning.
 
 ## 4. Document Modelling and Design Decisions
 
@@ -81,7 +81,7 @@ I checked the scripts using their `PASS` and `FAIL` results, which are also reco
 
 ### 5.1 Indexing Results and Execution Plans
 
-I recorded the following results from `07_indexes_explain.js` in `evidence/07_indexes.png`. The times are **averages of five runs**, as reported in the screenshot. They describe this lab run rather than fixed timings for other environments.
+I recorded the following results from `Akosa_Antonella_301929153_P4_07_indexes_explain.js` in `evidence/Akosa_Antonella_301929153_P4_07_indexes.png`. The times are **averages of five runs**, as reported in the screenshot. They describe this lab run rather than fixed timings for other environments.
 
 | Query | Before: docs examined | After: docs examined | Before ms | After ms |
 |---|---|---|---|---|
@@ -117,7 +117,7 @@ I used UPLN to compare four NoSQL data models. The document model is implemented
 
 ## 8. Authentication and Security Controls
 
-I ran scripts 02 to 11 against a lab MongoDB instance without password authentication, with its host port bound to `127.0.0.1`. I also created and tested a separate **hardened instance** using `12_secure_mongo.sh`:
+I ran scripts 02 to 11 against a lab MongoDB instance without password authentication, with its host port bound to `127.0.0.1`. I also created and tested a separate **hardened instance** using `Akosa_Antonella_301929153_P4_12_secure_mongo.sh`:
 
 | Measure | What the test shows |
 |---|---|
@@ -131,17 +131,17 @@ I ran scripts 02 to 11 against a lab MongoDB instance without password authentic
 
 ## 9. Supporting Evidence
 
-I recorded screenshots with the clock visible in `evidence/`. The screenshot names below correspond to each implementation stage; `07_indexes.png` is the index-plan screenshot reviewed for this README.
+I recorded screenshots with the clock visible in `evidence/`. The screenshot names below correspond to each implementation stage; `Akosa_Antonella_301929153_P4_07_indexes.png` is the index-plan screenshot reviewed for this README.
 
 | Screenshot name in `evidence/` | Implementation evidence |
 |---|---|
-| `00_mongo_started`, `01_export` | MongoDB start-up and catalogue export |
-| `02_validation`, `03_migration` | Schema validation and migrated catalogue documents |
-| `04_data`, `05_queries` | Generated dataset and document operations |
-| `06_aggregation`, `07_indexes` | Aggregation and index/explain results |
-| `08_patterns`, `09_reconcile` | Modelling patterns and PostgreSQL/MongoDB reconciliation |
-| `10_all_tests`, `11_other_models` | Overall test summary and other NoSQL model examples |
-| `12_secure_mongo`, `13_media_formats` | Authentication checks and format-specific modelling |
+| `Akosa_Antonella_301929153_P4_00_mongo_started`, `Akosa_Antonella_301929153_P4_01_export` | MongoDB start-up and catalogue export |
+| `Akosa_Antonella_301929153_P4_02_validation`, `Akosa_Antonella_301929153_P4_03_migration` | Schema validation and migrated catalogue documents |
+| `Akosa_Antonella_301929153_P4_04_data`, `Akosa_Antonella_301929153_P4_05_queries` | Generated dataset and document operations |
+| `Akosa_Antonella_301929153_P4_06_aggregation`, `Akosa_Antonella_301929153_P4_07_indexes` | Aggregation and index/explain results |
+| `Akosa_Antonella_301929153_P4_08_patterns`, `Akosa_Antonella_301929153_P4_09_reconcile` | Modelling patterns and PostgreSQL/MongoDB reconciliation |
+| `Akosa_Antonella_301929153_P4_10_all_tests`, `Akosa_Antonella_301929153_P4_11_other_models` | Overall test summary and other NoSQL model examples |
+| `Akosa_Antonella_301929153_P4_12_secure_mongo`, `Akosa_Antonella_301929153_P4_13_media_formats` | Authentication checks and format-specific modelling |
 
 ## 10. References
 

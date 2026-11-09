@@ -1,12 +1,12 @@
 -- =====================================================================
 -- Unity Public Library Network (UPLN)  |  MIT 8103  |  Portfolio 1 (security)
--- File    : 06_audit_log.sql
+-- File    : Akosa_Antonella_301929153_P1_06_audit_log.sql
 -- Purpose : AUDITING. Records WHO changed WHAT and WHEN on the sensitive
 --           tables, and makes the record tamper-resistant.
 --           (Course notes: "audit logs record who accessed the database,
 --           what actions were performed, and when".)
--- Run     : psql -U library_admin -d upln -v ON_ERROR_STOP=1 -f 06_audit_log.sql
--- Requires: 01_schema.sql, 02_sample_data.sql, 04_security_privacy.sql
+-- Run     : psql -U library_admin -d upln -v ON_ERROR_STOP=1 -f Akosa_Antonella_301929153_P1_06_audit_log.sql
+-- Requires: Akosa_Antonella_301929153_P1_01_schema.sql, Akosa_Antonella_301929153_P1_02_sample_data.sql, Akosa_Antonella_301929153_P1_04_security_privacy.sql
 -- Note    : Re-runnable. Re-running RESETS the log (fine for coursework;
 --           a production system would never drop its audit history).
 -- =====================================================================

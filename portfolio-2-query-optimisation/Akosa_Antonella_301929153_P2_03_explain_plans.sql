@@ -1,11 +1,11 @@
 -- =====================================================================
 -- Unity Public Library Network (UPLN)  |  MIT 8103  |  Portfolio 2
--- File    : 03_explain_plans.sql
+-- File    : Akosa_Antonella_301929153_P2_03_explain_plans.sql
 -- Purpose : Prints the FULL execution plan (EXPLAIN ANALYZE with buffer
 --           counts) of all 9 benchmark queries, for use as evidence.
--- Run     : psql -U library_admin -d upln_perf -v which=before -f 03_explain_plans.sql
---           psql -U library_admin -d upln_perf -v which=after  -f 03_explain_plans.sql
---           Tip: add  > results/plans_before.txt  to save the output.
+-- Run     : psql -U library_admin -d upln_perf -v which=before -f Akosa_Antonella_301929153_P2_03_explain_plans.sql
+--           psql -U library_admin -d upln_perf -v which=after  -f Akosa_Antonella_301929153_P2_03_explain_plans.sql
+--           Tip: add  > results/Akosa_Antonella_301929153_P2_plans_before.txt  to save the output.
 -- =====================================================================
 \if :{?which}
 \else

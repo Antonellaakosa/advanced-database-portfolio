@@ -1,6 +1,6 @@
 -- =====================================================================
 -- Unity Public Library Network (UPLN)  |  MIT 8103  |  Portfolio 1 (security)
--- File    : 09_authentication.sql
+-- File    : Akosa_Antonella_301929153_P1_09_authentication.sql
 -- Purpose : AUTHENTICATION. Until now the five roles were "job titles" that
 --           nobody could log in as. Here two real login accounts are
 --           created and attached to those job roles:
@@ -9,17 +9,17 @@
 --           Passwords are supplied when the script runs. They are NEVER
 --           written in the repository, and the database keeps only a salted
 --           SCRAM-SHA-256 hash, never the password itself.
--- Run     : see 09b_login_tests.sh (it generates random passwords for you)
+-- Run     : see Akosa_Antonella_301929153_P1_09b_login_tests.sh (it generates random passwords for you)
 -- Requires: 01 .. 06 (audit log, so that real logins appear in it)
 -- =====================================================================
 \if :{?amina_pw}
 \else
-  \echo 'ERROR: run this through 09b_login_tests.sh (it supplies the passwords)'
+  \echo 'ERROR: run this through Akosa_Antonella_301929153_P1_09b_login_tests.sh (it supplies the passwords)'
   \quit
 \endif
 \if :{?ngozi_pw}
 \else
-  \echo 'ERROR: run this through 09b_login_tests.sh (it supplies the passwords)'
+  \echo 'ERROR: run this through Akosa_Antonella_301929153_P1_09b_login_tests.sh (it supplies the passwords)'
   \quit
 \endif
 

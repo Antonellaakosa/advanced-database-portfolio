@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 # =====================================================================
 # UPLN | MIT 8103 | Portfolio 5
-# File    : 04_sharding.sh
+# File    : Akosa_Antonella_301929153_P5_04_sharding.sh
 # Purpose : Horizontal partitioning ("sharding") of loan history by branch.
 #           shard_north keeps Abuja (ABJ) and Kano (KAN); shard_south keeps
 #           Lagos (LOS), Port Harcourt (PHC) and Enugu (ENU).
 #           The primary acts as the coordinator: `branch_loan` looks like one
 #           table, but each branch's rows live on a different server
 #           (postgres_fdw foreign tables used as partitions).
-# Run     : bash portfolio-5-distributed-cloud/04_sharding.sh
+# Run     : bash portfolio-5-distributed-cloud/Akosa_Antonella_301929153_P5_04_sharding.sh
 # =====================================================================
 set -u
-source "$(dirname "$0")/lib.sh"
+source "$(dirname "$0")/Akosa_Antonella_301929153_P5_lib.sh"
 begin_scenario "04_sharding"
 echo "== Sharding loan history by branch =="
 

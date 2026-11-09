@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 # =====================================================================
 # Unity Public Library Network (UPLN) | MIT 8103 | Portfolio 4
-# File    : 01_export_from_postgres.sh
+# File    : Akosa_Antonella_301929153_P4_01_export_from_postgres.sh
 # Purpose : The "migration" step. Reads the catalogue from PostgreSQL
 #           (database `upln`, Portfolio 1) and turns each TITLE into ONE
 #           document, with its authors, publisher, category and the number
 #           of copies per branch folded inside it. The result is written to
-#           data/migrated_titles.js. PostgreSQL is only READ, never changed.
-# Run     : bash portfolio-4-nosql/01_export_from_postgres.sh      (from the repo root)
+#           data/Akosa_Antonella_301929153_P4_migrated_titles.js. PostgreSQL is only READ, never changed.
+# Run     : bash portfolio-4-nosql/Akosa_Antonella_301929153_P4_01_export_from_postgres.sh      (from the repo root)
 # =====================================================================
 set -u
-source "$(dirname "$0")/lib.sh"
-OUT="$HERE/data/migrated_titles.js"
+source "$(dirname "$0")/Akosa_Antonella_301929153_P4_lib.sh"
+OUT="$HERE/data/Akosa_Antonella_301929153_P4_migrated_titles.js"
 mkdir -p "$HERE/data"
 
 echo "== Exporting the catalogue from PostgreSQL (database upln) =="
@@ -50,11 +50,11 @@ FROM (
   LEFT JOIN publisher p ON p.publisher_id = t.publisher_id
 ) d;
 SQL
-[ $? -eq 0 ] || { echo "Export failed. Is PostgreSQL running? (docker compose up -d)"; exit 1; }
+[ $? -eq 0 ] || { echo "Export failed. Is PostgreSQL running? (docker compose -f Akosa_Antonella_301929153_docker-compose.yml up -d)"; exit 1; }
 
 N="$(grep -c '"_id":' "$OUT")"
 echo "   documents written : $N"
-echo "   file              : portfolio-4-nosql/data/migrated_titles.js  ($(wc -c < "$OUT") bytes)"
+echo "   file              : portfolio-4-nosql/data/Akosa_Antonella_301929153_P4_migrated_titles.js  ($(wc -c < "$OUT") bytes)"
 echo
 echo "== The first document (one relational title = one document) =="
 awk 'BEGIN{n=0} /^    \{/ {n++} n==1 {print} /^    \}/ && n==1 {exit}' "$OUT" | sed 's/^/   /'

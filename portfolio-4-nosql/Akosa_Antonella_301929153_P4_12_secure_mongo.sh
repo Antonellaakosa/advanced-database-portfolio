@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # =====================================================================
 # Unity Public Library Network (UPLN) | MIT 8103 | Portfolio 4
-# File    : 12_secure_mongo.sh
+# File    : Akosa_Antonella_301929153_P4_12_secure_mongo.sh
 # Purpose : Starts a password-protected MongoDB (second container, port 27018)
 #           and PROVES the protection by trying to get past it:
 #           anonymous access, a wrong password, a read-only account that tries
 #           to write, an application account that reaches for other databases
 #           or tries to create users.
-# Run     : bash portfolio-4-nosql/12_secure_mongo.sh
+# Run     : bash portfolio-4-nosql/Akosa_Antonella_301929153_P4_12_secure_mongo.sh
 # =====================================================================
 set -u
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -27,7 +27,7 @@ set -a; . "$ENVF"; set +a
 ROOT_PW="$MONGO_INITDB_ROOT_PASSWORD"
 
 echo "   starting the secure container..."
-docker compose -f "$HERE/docker-compose.mongo-secure.yml" up -d >/dev/null 2>&1 || { echo "could not start the container"; exit 1; }
+docker compose -f "$HERE/Akosa_Antonella_301929153_P4_docker-compose.mongo-secure.yml" up -d >/dev/null 2>&1 || { echo "could not start the container"; exit 1; }
 ok=false
 for i in $(seq 1 90); do
   if docker exec "$C" mongosh --quiet -u admin -p "$ROOT_PW" --authenticationDatabase admin --eval 'db.runCommand({ping:1}).ok' 2>/dev/null | grep -q 1 \
@@ -51,7 +51,7 @@ check S2 "a wrong password is refused" "$(yes_if 'echo "$W" | grep -qi "Authenti
 
 echo
 echo "-- 2. What may each account do?"
-as_app 'load("/p4/data/migrated_titles.js"); db.titles.deleteMany({}); db.titles.insertMany(migratedTitles).insertedIds.length' >/dev/null
+as_app 'load("/p4/data/Akosa_Antonella_301929153_P4_migrated_titles.js"); db.titles.deleteMany({}); db.titles.insertMany(migratedTitles).insertedIds.length' >/dev/null
 N="$(as_app 'db.titles.countDocuments({})' | tail -1)"
 echo "   application account loaded the catalogue and counts: $N titles"
 check S3 "the application account can write and read its own database (10 titles)" "$(yes_if '[ "$N" = 10 ]')"
@@ -69,7 +69,7 @@ check S7 "the application account cannot create users or grant itself more right
 
 echo
 echo "-- 3. Exposure and secrets"
-PUB="$(grep -c '127.0.0.1:27018' "$HERE/docker-compose.mongo-secure.yml")"
+PUB="$(grep -c '127.0.0.1:27018' "$HERE/Akosa_Antonella_301929153_P4_docker-compose.mongo-secure.yml")"
 check S8 "the secure port is published to this machine only (127.0.0.1)" "$(yes_if '[ "$PUB" = 1 ]')"
 check S9 ".env.mongo (passwords) is excluded from GitHub by .gitignore" "$(yes_if 'grep -q "^.env.mongo" "$HERE/.gitignore"')"
 check S10 "the password file is private to its owner (mode 600)" "$(yes_if '[ "$(stat -c %a "$ENVF")" = 600 ]')"

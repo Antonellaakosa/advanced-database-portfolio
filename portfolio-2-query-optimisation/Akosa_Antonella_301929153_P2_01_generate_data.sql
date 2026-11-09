@@ -1,14 +1,14 @@
 -- =====================================================================
 -- Unity Public Library Network (UPLN)  |  MIT 8103  |  Portfolio 2
--- File    : 01_generate_data.sql
+-- File    : Akosa_Antonella_301929153_P2_01_generate_data.sql
 -- Purpose : Adds a realistic LARGE data set on top of the Portfolio 1 sample
 --           data, so that query performance can be measured meaningfully.
 --             ~50,000 members   ~100,000 titles   ~150,000 copies
 --             ~1,000,000 loans  ~130,000 fines    ~90,000 payments
--- Run     : psql -U library_admin -d upln_perf -v ON_ERROR_STOP=1 -f 01_generate_data.sql
+-- Run     : psql -U library_admin -d upln_perf -v ON_ERROR_STOP=1 -f Akosa_Antonella_301929153_P2_01_generate_data.sql
 --           Optional smaller run for a quick test:  -v scale=0.1
--- Requires: a database that already contains 01_schema.sql and
---           02_sample_data.sql from Portfolio 1 (see README, section 3).
+-- Requires: a database that already contains Akosa_Antonella_301929153_P1_01_schema.sql and
+--           Akosa_Antonella_301929153_P1_02_sample_data.sql from Portfolio 1 (see README, section 3).
 -- Note    : All data is SYNTHETIC. The random generator is seeded, so the
 --           same data is produced each time (names and dates are repeatable).
 -- Note    : This script deliberately creates NO extra indexes. Portfolio 2
